@@ -31,7 +31,13 @@ jobs:
           go get golang.org/x/lint/golint
           go get github.com/mattn/goveralls
           go get github.com/lawrencewoodman/roveralls
-    
+
+      - name: debug
+        run: |
+          ls -alh
+          ls -alh src/
+          ls -alh src/github.com/${{ github.repository }}
+      
       - name: go get deps
         run: go get -v -t -d github.com/${{ github.repository }}/...
     
