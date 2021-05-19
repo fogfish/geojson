@@ -9,7 +9,7 @@
     </a>
     <!-- Build Status  -->
     <a href="https://github.com/fogfish/geojson/actions/">
-      <img src="https://github.com/fogfish/geojson/workflows/Go/badge.svg" />
+      <img src="https://github.com/fogfish/geojson/workflows/build/badge.svg" />
     </a>
     <!-- GitHub -->
     <a href="http://github.com/fogfish/geojson">
@@ -17,7 +17,7 @@
     </a>
     <!-- Coverage -->
     <a href="https://coveralls.io/github/fogfish/geojson?branch=master">
-      <img src="https://coveralls.io/repos/github/fogfish/geojson/badge.svg?branch=master" />
+      <img src="https://coveralls.io/repos/github/fogfish/geojson/badge.svg?branch=main" />
     </a>
     <!-- Go Card -->
     <a href="https://goreportcard.com/report/github.com/fogfish/geojson">
