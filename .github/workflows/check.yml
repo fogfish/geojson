@@ -13,12 +13,11 @@ jobs:
       - name: golang
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.14
 
       - name: fix GOPATH
         run: |
           echo "GOPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "GO111MODULE=on" >> $GITHUB_ENV
           echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
         shell: bash
 
@@ -32,11 +31,6 @@ jobs:
           go get golang.org/x/lint/golint
           go get github.com/mattn/goveralls
           go get github.com/lawrencewoodman/roveralls
-
-      - name: debug
-        run: |
-          ls -alh $GOPATH
-          cat src/github.com/${{ github.repository }}/go.mod
       
       - name: go get deps
         run: go get -v -t -d github.com/${{ github.repository }}/...
