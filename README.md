@@ -16,7 +16,7 @@
       <img src="https://img.shields.io/github/last-commit/fogfish/geojson.svg" />
     </a>
     <!-- Coverage -->
-    <a href="https://coveralls.io/github/fogfish/geojson?branch=master">
+    <a href="https://coveralls.io/github/fogfish/geojson?branch=main">
       <img src="https://coveralls.io/repos/github/fogfish/geojson/badge.svg?branch=main" />
     </a>
     <!-- Go Card -->
