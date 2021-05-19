@@ -34,6 +34,7 @@
 
 The library implements a type safe codec for [GeoJSON](https://geojson.org). 
 
+
 ## Inspiration
 
 GeoJSON is a popular format for encoding a variety of geographic data structures. It defines a standard way to express points, curves, and surfaces in coordinate space together with an application specific metadata about it.
