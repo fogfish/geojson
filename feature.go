@@ -36,11 +36,19 @@ type Feature struct {
 	Geometry *Geometry  `json:"-"`
 }
 
+/*
+
+WithID sets feature ID from string
+*/
 func (fea Feature) WithID(iri string) Feature {
 	fea.ID = curie.New(iri).This()
 	return fea
 }
 
+/*
+
+WithIRI sets feature ID from CURIE (compact IRI type)
+*/
 func (fea Feature) WithIRI(iri curie.IRI) Feature {
 	fea.ID = &iri
 	return fea
@@ -48,7 +56,7 @@ func (fea Feature) WithIRI(iri curie.IRI) Feature {
 
 /*
 
-EncodeJSON is a helper function to implement GeoJSON codec
+EncodeGeoJSON is a helper function to implement GeoJSON codec
 
   func (x MyType) MarshalJSON() ([]byte, error) {
 	  type tStruct MyType
@@ -78,7 +86,7 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 
 /*
 
-DecodeJSON is a helper function to implement GeoJSON codec
+DecodeGeoJSON is a helper function to implement GeoJSON codec
 
   func (x *MyType) UnmarshalJSON(b []byte) error {
 	  type tStruct *MyType

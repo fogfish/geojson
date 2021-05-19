@@ -8,10 +8,18 @@
 
 package geojson
 
+/*
+
+Error of GeoJSON codec
+*/
 type Error string
 
 func (err Error) Error() string { return string(err) }
 
+/*
+
+Supported GeoJSON codec errors
+*/
 const (
 	ErrorUnsupportedType = Error("GeoJSON type is not supported")
 )
