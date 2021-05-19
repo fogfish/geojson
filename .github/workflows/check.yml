@@ -35,6 +35,7 @@ jobs:
 
       - name: debug
         run: |
+          ls -alh $GOPATH
           cat src/github.com/${{ github.repository }}/go.mod
       
       - name: go get deps
