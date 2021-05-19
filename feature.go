@@ -84,6 +84,14 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 	return json.Marshal(any)
 }
 
+// anyGeoJSON is an internal type used for decode of GeoJSON
+type anyGeoJSON struct {
+	Type       string          `json:"type"`
+	ID         *curie.IRI      `json:"id,omitempty"`
+	Geometry   json.RawMessage `json:"geometry,omitempty"`
+	Properties json.RawMessage `json:"properties,omitempty"`
+}
+
 /*
 
 DecodeGeoJSON is a helper function to implement GeoJSON codec
@@ -94,12 +102,7 @@ DecodeGeoJSON is a helper function to implement GeoJSON codec
   }
 */
 func (fea *Feature) DecodeGeoJSON(bytes []byte, props interface{}) error {
-	any := struct {
-		Type       string          `json:"type"`
-		ID         *curie.IRI      `json:"id,omitempty"`
-		Geometry   json.RawMessage `json:"geometry,omitempty"`
-		Properties json.RawMessage `json:"properties,omitempty"`
-	}{}
+	any := anyGeoJSON{}
 
 	if err := json.Unmarshal(bytes, &any); err != nil {
 		return err
@@ -109,6 +112,10 @@ func (fea *Feature) DecodeGeoJSON(bytes []byte, props interface{}) error {
 		return ErrorUnsupportedType
 	}
 
+	return fea.decodeAnyGeoJSON(&any, props)
+}
+
+func (fea *Feature) decodeAnyGeoJSON(any *anyGeoJSON, props interface{}) error {
 	if any.Geometry != nil {
 		geo := Geometry{}
 		if err := json.Unmarshal(any.Geometry, &geo); err != nil {

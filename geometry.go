@@ -51,25 +51,27 @@ func (geo *Geometry) UnmarshalJSON(b []byte) error {
 	switch gen.Type {
 	case "Point":
 		geo.Coords = &Point{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+
 	case "MultiPoint":
 		geo.Coords = &MultiPoint{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+		break
 	case "LineString":
 		geo.Coords = &LineString{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+		break
 	case "MultiLineString":
 		geo.Coords = &MultiLineString{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+		break
 	case "Polygon":
 		geo.Coords = &Polygon{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+		break
 	case "MultiPolygon":
 		geo.Coords = &MultiPolygon{}
-		return geo.Coords.UnmarshalGeoJSON(gen.Coords)
+		break
 	default:
 		return ErrorUnsupportedType
 	}
+
+	return geo.Coords.UnmarshalGeoJSON(gen.Coords)
 }
 
 /*
