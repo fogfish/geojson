@@ -34,10 +34,7 @@ jobs:
 
       - name: debug
         run: |
-          ls -alh
-          ls -alh src/
-          ls -alh src/github.com/
-          ls -alh src/github.com/${{ github.repository }}
+          cat src/github.com/${{ github.repository }}/go.mod
       
       - name: go get deps
         run: go get -v -t -d github.com/${{ github.repository }}/...
