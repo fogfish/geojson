@@ -136,6 +136,14 @@ func (fea *Feature) decodeAnyGeoJSON(any *anyGeoJSON, props interface{}) error {
 
 /*
 
+New Feature from Geometry
+*/
+func New(geometry Geometry) Feature {
+	return Feature{Geometry: &geometry}
+}
+
+/*
+
 NewPoint ⟼ Feature[Point]
 */
 func NewPoint(coords ...float64) Feature {
