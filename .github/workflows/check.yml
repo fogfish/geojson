@@ -36,7 +36,7 @@ jobs:
       #   run: go get -v -t -d github.com/${{ github.repository }}/...
     
       - name: go build
-        run: go build -v ./...
+        run: go build ./...
         # run: go build -v github.com/${{ github.repository }}/...
     
       - name: go vet
@@ -48,15 +48,19 @@ jobs:
         # run: golint -set_exit_status github.com/${{ github.repository }}/...
 
       - name: go test
-        run: go test ./...
+        run: go test -v -coverprofile=profile.cov ./...
         # run: go test github.com/${{ github.repository }}/...
 
-      - name: coverage
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          roveralls
-          goveralls -coverprofile=roveralls.coverprofile -service=github
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: profile.cov
+
+      # - name: coverage
+      #   env:
+      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     roveralls
+      #     goveralls -coverprofile=roveralls.coverprofile -service=github
 
       # - name: coverage
       #   env:
