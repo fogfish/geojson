@@ -41,7 +41,8 @@ type Feature struct {
 WithID sets feature ID from string
 */
 func (fea Feature) WithID(iri string) Feature {
-	fea.ID = curie.New(iri).This()
+	id := curie.New(iri)
+	fea.ID = &id
 	return fea
 }
 
