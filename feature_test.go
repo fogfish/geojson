@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/fogfish/curie"
 	"github.com/fogfish/geojson"
 	"github.com/fogfish/it"
 )
@@ -81,8 +82,9 @@ func TestFeatureEncodePoint(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.Point{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.Point{})
 }
 
 func TestFeatureEncodeMultiPoint(t *testing.T) {
@@ -104,8 +106,9 @@ func TestFeatureEncodeMultiPoint(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.MultiPoint{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.MultiPoint{})
 }
 
 func TestFeatureEncodeLineString(t *testing.T) {
@@ -127,8 +130,9 @@ func TestFeatureEncodeLineString(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.LineString{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.LineString{})
 }
 
 func TestFeatureEncodeMultiLineString(t *testing.T) {
@@ -156,8 +160,9 @@ func TestFeatureEncodeMultiLineString(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.MultiLineString{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.MultiLineString{})
 }
 
 func TestFeatureEncodePolygon(t *testing.T) {
@@ -184,8 +189,9 @@ func TestFeatureEncodePolygon(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.Polygon{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.Polygon{})
 }
 
 func TestFeatureEncodeMultiPolygon(t *testing.T) {
@@ -212,6 +218,44 @@ func TestFeatureEncodeMultiPolygon(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry.Coords).Should().Be().Like(geojson.MultiPolygon{})
+		IfNil(c.ID).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry.Coords).Should().Be().Like(geojson.MultiPolygon{})
+}
+
+func TestFeatureWithID(t *testing.T) {
+	city := GeoJsonCity{
+		Feature: geojson.NewPoint(100.0, 0.0).WithID("city:helsinki"),
+		City:    City{Name: "Helsinki"},
+	}
+
+	data, err := json.Marshal(city)
+	it.Ok(t).IfNil(err)
+
+	var c GeoJsonCity
+	err = json.Unmarshal([]byte(data), &c)
+
+	it.Ok(t).
+		IfNil(err).
+		IfNotNil(c.ID).
+		If(*c.ID).Equal(curie.New("city:helsinki"))
+}
+
+func TestFeatureWithIRI(t *testing.T) {
+	iri := curie.New("city:helsinki")
+	city := GeoJsonCity{
+		Feature: geojson.NewPoint(100.0, 0.0).WithIRI(iri),
+		City:    City{Name: "Helsinki"},
+	}
+
+	data, err := json.Marshal(city)
+	it.Ok(t).IfNil(err)
+
+	var c GeoJsonCity
+	err = json.Unmarshal([]byte(data), &c)
+
+	it.Ok(t).
+		IfNil(err).
+		IfNotNil(c.ID).
+		If(*c.ID).Equal(iri)
 }
