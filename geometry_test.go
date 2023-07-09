@@ -17,6 +17,16 @@ import (
 )
 
 const (
+	geometryUnknown = `
+	{
+		"type": "Feature",
+		"geometry": {
+			"type": "Unknown",
+			"coordinates": [100.0, 0.0]
+		}
+	}
+	`
+
 	geometryPoint = `
 	{
 		"type": "Feature",
@@ -164,6 +174,15 @@ func (x GeoJSON) MarshalJSON() ([]byte, error) {
 func (x *GeoJSON) UnmarshalJSON(b []byte) error {
 	type tStruct *GeoJSON
 	return x.Feature.DecodeGeoJSON(b, tStruct(x))
+}
+
+func TestGeometryUnknown(t *testing.T) {
+	var geo GeoJSON
+	err := json.Unmarshal([]byte(geometryUnknown), &geo)
+
+	it.Ok(t).
+		IfNotNil(err).
+		IfNil(geo.Geometry)
 }
 
 func TestGeometryPoint(t *testing.T) {

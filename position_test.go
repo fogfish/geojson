@@ -28,6 +28,8 @@ func TestPosition(t *testing.T) {
 	it.Ok(t).
 		If(lat).Equal(0.0).
 		If(lng).Equal(100.0).
+		If(p.Lat()).Equal(lat).
+		If(p.Lng()).Equal(lng).
 		If(seq).Equal([]float64{100.0, 0.0})
 }
 
