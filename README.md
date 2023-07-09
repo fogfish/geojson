@@ -3,13 +3,17 @@
   <p align="center"><strong>GeoJSON codec for Go structs</strong></p>
 
   <p align="center">
+    <!-- Version -->
+    <a href="https://github.com/fogfish/geojson/releases">
+      <img src="https://img.shields.io/github/v/tag/fogfish/geojson?label=version" />
+    </a>
     <!-- Documentation -->
-    <a href="http://godoc.org/github.com/fogfish/geojson">
-      <img src="https://godoc.org/github.com/fogfish/geojson?status.svg" />
+    <a href="https://pkg.go.dev/github.com/fogfish/geojson">
+      <img src="https://pkg.go.dev/badge/github.com/fogfish/geojson" />
     </a>
     <!-- Build Status  -->
     <a href="https://github.com/fogfish/geojson/actions/">
-      <img src="https://github.com/fogfish/geojson/workflows/build/badge.svg" />
+      <img src="https://github.com/fogfish/geojson/workflows/test/badge.svg" />
     </a>
     <!-- GitHub -->
     <a href="http://github.com/fogfish/geojson">
@@ -52,7 +56,7 @@ GeoJSON is a popular format for encoding a variety of geographic data structures
 }
 ```
 
-Unfortunately, efficient and type-safe implementation of GeoJSON codec requires generics. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries.As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
+Unfortunately, efficient and type-safe implementation of GeoJSON codec requires generics. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries. As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
 
 
 ## Key features
@@ -86,7 +90,7 @@ type City struct {
 //
 // implement JSON encode/decode protocol for your type using
 // helper functions provided by the library. These few lines
-// implements a GeoJSON codec for the types
+// implements a GeoJSON codec for the types.
 func (x City) MarshalJSON() ([]byte, error) {
 	type tStruct City
 	return x.Feature.EncodeGeoJSON(tStruct(x))
@@ -105,6 +109,10 @@ city := City{
     WithID("[wikipedia:Helsinki]"),
   Name: "Helsinki",
 }
+
+//
+// Use type checks to validate the type of the Geometry 
+city.Feature.Geometry.Coords.(*geojson.Point)
 ```
 
 ## How To Contribute
