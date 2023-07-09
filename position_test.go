@@ -16,12 +16,13 @@ import (
 )
 
 func TestPosition(t *testing.T) {
-	p := geojson.Position{100.0, 0.0}
+	p := geojson.Coord{100.0, 0.0}
 	lat, lng := p.LatLng()
 
 	seq := []float64{}
-	p.FMap(func(x geojson.Position) {
-		seq = append(seq, x...)
+	p.FMap(func(x geojson.Coord) {
+		lat, lng := x.LatLng()
+		seq = append(seq, lng, lat)
 	})
 
 	it.Ok(t).
@@ -31,14 +32,15 @@ func TestPosition(t *testing.T) {
 }
 
 func TestSequence(t *testing.T) {
-	p := geojson.Sequence{
+	p := geojson.Curve{
 		{100.0, 0.0},
 		{100.0, 0.0},
 	}
 
 	seq := []float64{}
-	p.FMap(func(x geojson.Position) {
-		seq = append(seq, x...)
+	p.FMap(func(x geojson.Coord) {
+		lat, lng := x.LatLng()
+		seq = append(seq, lng, lat)
 	})
 
 	it.Ok(t).
@@ -57,8 +59,9 @@ func TestSurface(t *testing.T) {
 	}
 
 	seq := []float64{}
-	p.FMap(func(x geojson.Position) {
-		seq = append(seq, x...)
+	p.FMap(func(x geojson.Coord) {
+		lat, lng := x.LatLng()
+		seq = append(seq, lng, lat)
 	})
 
 	it.Ok(t).
