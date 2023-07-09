@@ -18,6 +18,19 @@ import (
 )
 
 const (
+	featureInvalid = `
+		{
+			"type": "Unknown",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			},
+			"properties": {
+				"name": "Helsinki"
+			}
+		}
+	`
+
 	featurePoint = `
 		{
 			"type": "Feature",
@@ -258,4 +271,14 @@ func TestFeatureWithIRI(t *testing.T) {
 		IfNil(err).
 		IfNotNil(c.ID).
 		If(*c.ID).Equal(iri)
+}
+
+func TestFeatureInvalidDecode(t *testing.T) {
+	var city GeoJsonCity
+	err := json.Unmarshal([]byte(featureInvalid), &city)
+
+	it.Ok(t).
+		IfNotNil(err).
+		If(city.Name).Equal("").
+		IfNil(city.Geometry)
 }
