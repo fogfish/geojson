@@ -47,3 +47,66 @@ func (seq Surface) FMap(f func(Coord)) {
 		x.FMap(f)
 	}
 }
+
+// Bounding Box: The value of the bbox member MUST be an array of
+// length 2*n where n is the number of dimensions represented in the
+// contained geometries, with all axes of the most southwesterly point
+// followed by all axes of the more northeasterly point.
+type BoundingBox []float64
+
+// South-West corner of Bounding Box
+func (bbox BoundingBox) SouthWest() Coord {
+	n := len(bbox) / 2
+	return Coord(bbox[:n])
+}
+
+// North-East corner of Bounding Box
+func (bbox BoundingBox) NorthEast() Coord {
+	n := len(bbox) / 2
+	return Coord(bbox[n:])
+}
+
+func (bbox BoundingBox) Join(box BoundingBox) {
+	n := len(bbox) / 2
+	sw := box.SouthWest()
+	ne := box.NorthEast()
+
+	if bbox[0] > sw.Lng() {
+		bbox[0] = sw.Lng()
+	}
+	if bbox[1] > sw.Lat() {
+		bbox[1] = sw.Lat()
+	}
+
+	if bbox[n] < ne.Lng() {
+		bbox[n] = ne.Lng()
+	}
+	if bbox[n+1] < ne.Lat() {
+		bbox[n+1] = ne.Lat()
+	}
+}
+
+// Helper function to build bounding box
+func boundingBox(seed Coord, coords interface{ FMap(f func(Coord)) }) BoundingBox {
+	s, w := seed.LatLng()
+	n, e := seed.LatLng()
+
+	coords.FMap(func(c Coord) {
+		lat, lng := c.LatLng()
+		if lng < w {
+			w = lng
+		}
+		if lng > e {
+			e = lng
+		}
+
+		if lat < s {
+			s = lat
+		}
+		if lat > n {
+			n = lat
+		}
+	})
+
+	return BoundingBox{w, s, e, n}
+}

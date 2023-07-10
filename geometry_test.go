@@ -201,6 +201,11 @@ func TestGeometryPoint(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 100.0, 0},
+	)
 }
 
 func TestGeometryMultiPoint(t *testing.T) {
@@ -222,6 +227,11 @@ func TestGeometryMultiPoint(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+	)
 }
 
 func TestGeometryLineString(t *testing.T) {
@@ -243,6 +253,11 @@ func TestGeometryLineString(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+	)
 }
 
 func TestGeometryMultiLineString(t *testing.T) {
@@ -270,6 +285,11 @@ func TestGeometryMultiLineString(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
+	)
 }
 
 func TestGeometryPolygon(t *testing.T) {
@@ -296,6 +316,11 @@ func TestGeometryPolygon(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+	)
 }
 
 func TestGeometryPolygonWithHole(t *testing.T) {
@@ -329,6 +354,11 @@ func TestGeometryPolygonWithHole(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+	)
 }
 
 func TestGeometryMultiPolygon(t *testing.T) {
@@ -373,4 +403,25 @@ func TestGeometryMultiPolygon(t *testing.T) {
 	default:
 		t.Error("Invalid Coords Type")
 	}
+
+	bbox := geo.Geometry.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
+	)
+}
+
+func TestEmptyGeometry(t *testing.T) {
+	it.Ok(t).
+		IfTrue(geojson.NewPoint("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewPoint("", geojson.Coord{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPoint("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPoint("", geojson.Curve{}).BoundingBox() == nil).
+		IfTrue(geojson.NewLineString("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewLineString("", geojson.Curve{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiLineString("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiLineString("", geojson.Surface{}).BoundingBox() == nil).
+		IfTrue(geojson.NewPolygon("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewPolygon("", geojson.Surface{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPolygon("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPolygon("", geojson.Surface{}).BoundingBox() == nil)
 }

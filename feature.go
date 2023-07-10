@@ -28,22 +28,11 @@ import (
 //	  Name      string `json:"name,omitempty"`
 //	}
 type Feature struct {
-	ID       *curie.IRI `json:"-"`
-	Geometry Geometry   `json:"-"`
+	ID       curie.IRI `json:"-"`
+	Geometry Geometry  `json:"-"`
 }
 
-// WithID sets feature ID from string
-func (fea Feature) WithID(iri string) Feature {
-	id := curie.New(iri)
-	fea.ID = &id
-	return fea
-}
-
-// WithIRI sets feature ID from CURIE (compact IRI type)
-func (fea Feature) WithIRI(iri curie.IRI) Feature {
-	fea.ID = &iri
-	return fea
-}
+func (fea Feature) BoundingBox() BoundingBox { return fea.Geometry.BoundingBox() }
 
 // EncodeGeoJSON is a helper function to implement GeoJSON codec
 //
@@ -64,12 +53,14 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 
 	any := struct {
 		Type       string          `json:"type"`
-		ID         *curie.IRI      `json:"id,omitempty"`
+		BBox       BoundingBox     `json:"bbox,omitempty"`
+		ID         curie.IRI       `json:"id,omitempty"`
 		Geometry   json.RawMessage `json:"geometry,omitempty"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
 		ID:         fea.ID,
 		Type:       "Feature",
+		BBox:       fea.Geometry.BoundingBox(),
 		Geometry:   geometry,
 		Properties: properties,
 	}
@@ -80,7 +71,7 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 // anyGeoJSON is an internal type used for decode of GeoJSON
 type anyGeoJSON struct {
 	Type       string          `json:"type"`
-	ID         *curie.IRI      `json:"id,omitempty"`
+	ID         curie.IRI       `json:"id,omitempty"`
 	Geometry   json.RawMessage `json:"geometry,omitempty"`
 	Properties json.RawMessage `json:"properties,omitempty"`
 }
@@ -129,48 +120,54 @@ func (fea *Feature) decodeAnyGeoJSON(any *anyGeoJSON, props interface{}) error {
 }
 
 // New Feature from Geometry
-func New(geometry Geometry) Feature {
-	return Feature{Geometry: geometry}
+func New(id curie.IRI, geometry Geometry) Feature {
+	return Feature{ID: id, Geometry: geometry}
 }
 
 // NewPoint ⟼ Feature[Point]
-func NewPoint(coords Coord) Feature {
+func NewPoint(id curie.IRI, coords Coord) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &Point{Coords: coords},
 	}
 }
 
 // NewMultiPoint ⟼ Feature[MultiPoint]
-func NewMultiPoint(coords Curve) Feature {
+func NewMultiPoint(id curie.IRI, coords Curve) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &MultiPoint{Coords: coords},
 	}
 }
 
 // NewLineString ⟼ Feature[LineString]
-func NewLineString(coords Curve) Feature {
+func NewLineString(id curie.IRI, coords Curve) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &LineString{Coords: coords},
 	}
 }
 
 // NewMultiLineString ⟼ Feature[MultiLineString]
-func NewMultiLineString(coords Surface) Feature {
+func NewMultiLineString(id curie.IRI, coords Surface) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &MultiLineString{Coords: coords},
 	}
 }
 
 // NewPolygon ⟼ Feature[Polygon]
-func NewPolygon(coords Surface) Feature {
+func NewPolygon(id curie.IRI, coords Surface) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &Polygon{Coords: coords},
 	}
 }
 
 // NewMultiPolygon ⟼ Feature[MultiPolygon]
-func NewMultiPolygon(coords ...Surface) Feature {
+func NewMultiPolygon(id curie.IRI, coords ...Surface) Feature {
 	return Feature{
+		ID:       id,
 		Geometry: &MultiPolygon{Coords: coords},
 	}
 }

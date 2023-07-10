@@ -88,9 +88,7 @@ type City struct {
 }
 
 //
-// implement JSON encode/decode protocol for your type using
-// helper functions provided by the library. These few lines
-// implements a GeoJSON codec for the types.
+// Each GeoJSON type declares codes using helper functions. 
 func (x City) MarshalJSON() ([]byte, error) {
 	type tStruct City
 	return x.Feature.EncodeGeoJSON(tStruct(x))
@@ -102,17 +100,28 @@ func (x *City) UnmarshalJSON(b []byte) error {
 }
 
 //
-// instantiate the type
+// Create new instance of the type
 city := City{
-  Feature: geojson.
-    NewPoint(24.9384, 60.1699).
-    WithID("[wikipedia:Helsinki]"),
+  Feature: geojson.NewPoint(
+    "[wikipedia:Helsinki]",
+    geojson.Coord{24.9384, 60.1699},
+  ),
   Name: "Helsinki",
 }
 
 //
 // Use type checks to validate the type of the Geometry 
 city.Feature.Geometry.Coords.(*geojson.Point)
+```
+
+### Feature Collection
+
+The library supports `FeatureCollection` object via Golang generic.
+
+```go
+seq := geojson.Collection[City]{
+	Features: []City{city},
+}
 ```
 
 ## How To Contribute
