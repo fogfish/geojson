@@ -69,3 +69,13 @@ func TestSurface(t *testing.T) {
 	it.Ok(t).
 		If(seq).Equal([]float64{100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0})
 }
+
+func TestBBox(t *testing.T) {
+	bbox := geojson.BoundingBox{-10.0, -20.0, +10.0, +20.0}
+
+	it.Ok(t).
+		If(bbox.SouthWest().Lng()).Equal(-10.0).
+		If(bbox.SouthWest().Lat()).Equal(-20.0).
+		If(bbox.NorthEast().Lng()).Equal(+10.0).
+		If(bbox.NorthEast().Lat()).Equal(+20.0)
+}

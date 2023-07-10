@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	city_helsinki = curie.IRI("city:helsinki")
+
 	featureInvalid = `
 		{
 			"type": "Unknown",
@@ -83,7 +85,7 @@ func TestFeatureDecode(t *testing.T) {
 
 func TestFeatureEncodePoint(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewPoint(geojson.Coord{100.0, 0.0}),
+		Feature: geojson.NewPoint(city_helsinki, geojson.Coord{100.0, 0.0}),
 		City:    City{Name: "Helsinki"},
 	}
 
@@ -95,14 +97,14 @@ func TestFeatureEncodePoint(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.Point{})
 }
 
 func TestFeatureEncodeMultiPoint(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiPoint(
+		Feature: geojson.NewMultiPoint(city_helsinki,
 			geojson.Curve{
 				{100.0, 0.0},
 				{101.0, 1.0},
@@ -119,14 +121,14 @@ func TestFeatureEncodeMultiPoint(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.MultiPoint{})
 }
 
 func TestFeatureEncodeLineString(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewLineString(
+		Feature: geojson.NewLineString(city_helsinki,
 			geojson.Curve{
 				{100.0, 0.0},
 				{101.0, 1.0},
@@ -143,14 +145,14 @@ func TestFeatureEncodeLineString(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.LineString{})
 }
 
 func TestFeatureEncodeMultiLineString(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiLineString(
+		Feature: geojson.NewMultiLineString(city_helsinki,
 			geojson.Surface{
 				{
 					{100.0, 0.0},
@@ -173,14 +175,14 @@ func TestFeatureEncodeMultiLineString(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.MultiLineString{})
 }
 
 func TestFeatureEncodePolygon(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewPolygon(
+		Feature: geojson.NewPolygon(city_helsinki,
 			geojson.Surface{
 				{
 					{100.0, 0.0},
@@ -202,14 +204,14 @@ func TestFeatureEncodePolygon(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.Polygon{})
 }
 
 func TestFeatureEncodeMultiPolygon(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiPolygon(
+		Feature: geojson.NewMultiPolygon(city_helsinki,
 			geojson.Surface{
 				{
 					{102.0, 2.0},
@@ -231,46 +233,9 @@ func TestFeatureEncodeMultiPolygon(t *testing.T) {
 
 	it.Ok(t).
 		IfNil(err).
-		IfNil(c.ID).
+		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.MultiPolygon{})
-}
-
-func TestFeatureWithID(t *testing.T) {
-	city := GeoJsonCity{
-		Feature: geojson.NewPoint(geojson.Coord{100.0, 0.0}).WithID("city:helsinki"),
-		City:    City{Name: "Helsinki"},
-	}
-
-	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
-
-	var c GeoJsonCity
-	err = json.Unmarshal([]byte(data), &c)
-
-	it.Ok(t).
-		IfNil(err).
-		IfNotNil(c.ID).
-		If(*c.ID).Equal(curie.New("city:helsinki"))
-}
-
-func TestFeatureWithIRI(t *testing.T) {
-	iri := curie.New("city:helsinki")
-	city := GeoJsonCity{
-		Feature: geojson.NewPoint(geojson.Coord{100.0, 0.0}).WithIRI(iri),
-		City:    City{Name: "Helsinki"},
-	}
-
-	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
-
-	var c GeoJsonCity
-	err = json.Unmarshal([]byte(data), &c)
-
-	it.Ok(t).
-		IfNil(err).
-		IfNotNil(c.ID).
-		If(*c.ID).Equal(iri)
 }
 
 func TestFeatureInvalidDecode(t *testing.T) {
