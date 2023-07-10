@@ -409,3 +409,19 @@ func TestGeometryMultiPolygon(t *testing.T) {
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
 }
+
+func TestEmptyGeometry(t *testing.T) {
+	it.Ok(t).
+		IfTrue(geojson.NewPoint("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewPoint("", geojson.Coord{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPoint("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPoint("", geojson.Curve{}).BoundingBox() == nil).
+		IfTrue(geojson.NewLineString("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewLineString("", geojson.Curve{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiLineString("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiLineString("", geojson.Surface{}).BoundingBox() == nil).
+		IfTrue(geojson.NewPolygon("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewPolygon("", geojson.Surface{}).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPolygon("", nil).BoundingBox() == nil).
+		IfTrue(geojson.NewMultiPolygon("", geojson.Surface{}).BoundingBox() == nil)
+}

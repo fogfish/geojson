@@ -8,7 +8,9 @@
 
 package geojson
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type geometryType string
 
