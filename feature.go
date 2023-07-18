@@ -46,22 +46,17 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	geometry, err := fea.Geometry.MarshalGeoJSON()
-	if err != nil {
-		return nil, err
-	}
-
 	any := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
 		ID         curie.IRI       `json:"id,omitempty"`
-		Geometry   json.RawMessage `json:"geometry,omitempty"`
+		Geometry   Geometry        `json:"geometry,omitempty"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
 		ID:         fea.ID,
 		Type:       "Feature",
 		BBox:       fea.Geometry.BoundingBox(),
-		Geometry:   geometry,
+		Geometry:   fea.Geometry,
 		Properties: properties,
 	}
 
@@ -102,10 +97,6 @@ func (fea *Feature) decodeAnyGeoJSON(any *anyGeoJSON, props interface{}) error {
 		if err != nil {
 			return err
 		}
-		// geo := Geometry{}
-		// if err := json.Unmarshal(any.Geometry, &geo); err != nil {
-		// 	return err
-		// }
 		fea.Geometry = geo
 	}
 
