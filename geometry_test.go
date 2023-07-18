@@ -19,54 +19,40 @@ import (
 const (
 	geometryUnknown = `
 	{
-		"type": "Feature",
-		"geometry": {
 			"type": "Unknown",
 			"coordinates": [100.0, 0.0]
-		}
 	}
 	`
 
 	geometryPoint = `
 	{
-		"type": "Feature",
-		"geometry": {
 			"type": "Point",
 			"coordinates": [100.0, 0.0]
-		}
 	}
 	`
 
 	geometryMultiPoint = `
 	{
-		"type": "Feature",
-		"geometry": {
 			"type": "MultiPoint",
 			"coordinates": [
 					[100.0, 0.0],
 					[101.0, 1.0]
 			]
-		}
 	}
 	`
 
 	geometryLineString = `
 	{
-		"type": "Feature",
-		"geometry": {
 			"type": "LineString",
 			"coordinates": [
 					[100.0, 0.0],
 					[101.0, 1.0]
 			]
-		}
 	}
 	`
 
 	geometryMultiLineString = `
 	{
-		"type": "Feature",
-		"geometry": {
 			"type": "MultiLineString",
 			"coordinates": [
 					[
@@ -78,14 +64,11 @@ const (
 							[103.0, 3.0]
 					]
 			]
-		}
 	}
 	`
 
 	geometryPolygon = `
 	{
-		"type": "Feature",
-		"geometry":	{
 			"type": "Polygon",
 			"coordinates": [
 					[
@@ -96,14 +79,11 @@ const (
 							[100.0, 0.0]
 					]
 			]
-		}
 	}
 	`
 
 	geometryPolygonWithHole = `
 	{
-		"type": "Feature",
-		"geometry":	{
 			"type": "Polygon",
 			"coordinates": [
 					[
@@ -121,14 +101,11 @@ const (
 							[100.8, 0.8]
 					]
 			]
-		}
 	}
 	`
 
 	geometryMultiPolygon = `
 	{
-		"type": "Feature",
-		"geometry":	{
 			"type": "MultiPolygon",
 			"coordinates": [
 					[
@@ -157,7 +134,6 @@ const (
 							]
 					]
 			]
-		}
 	}
 	`
 )
@@ -177,164 +153,180 @@ func (x *GeoJSON) UnmarshalJSON(b []byte) error {
 }
 
 func TestGeometryUnknown(t *testing.T) {
-	var geo GeoJSON
-	err := json.Unmarshal([]byte(geometryUnknown), &geo)
+	var geo *geojson.Point
+	err := json.Unmarshal([]byte(geometryUnknown), geo)
 
 	it.Ok(t).
 		IfNotNil(err).
-		IfNil(geo.Geometry)
+		IfNil(geo)
 }
 
 func TestGeometryPoint(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.Point
 	err := json.Unmarshal([]byte(geometryPoint), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.Point{})
+		If(geo).Should().Be().Like(&geojson.Point{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.Point:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Coord{100.0, 0.0},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Coord{100.0, 0.0},
+	)
 
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 100.0, 0},
 	)
 }
 
 func TestGeometryMultiPoint(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.MultiPoint
 	err := json.Unmarshal([]byte(geometryMultiPoint), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.MultiPoint{})
+		If(geo).Should().Be().Like(&geojson.MultiPoint{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.MultiPoint:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Curve{
-				{100.0, 0.0},
-				{101.0, 1.0},
-			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Curve{
+			{100.0, 0.0},
+			{101.0, 1.0},
+		},
+	)
 
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryLineString(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.LineString
 	err := json.Unmarshal([]byte(geometryLineString), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.LineString{})
+		If(geo).Should().Be().Like(&geojson.LineString{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.LineString:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Curve{
-				{100.0, 0.0},
-				{101.0, 1.0},
-			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Curve{
+			{100.0, 0.0},
+			{101.0, 1.0},
+		},
+	)
 
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryMultiLineString(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.MultiLineString
 	err := json.Unmarshal([]byte(geometryMultiLineString), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.MultiLineString{})
+		If(geo).Should().Be().Like(&geojson.MultiLineString{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.MultiLineString:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Surface{
-				{
-					{100.0, 0.0},
-					{101.0, 1.0},
-				},
-				{
-					{102.0, 2.0},
-					{103.0, 3.0},
-				},
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Surface{
+			{
+				{100.0, 0.0},
+				{101.0, 1.0},
 			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
+			{
+				{102.0, 2.0},
+				{103.0, 3.0},
+			},
+		},
+	)
 
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
 }
 
 func TestGeometryPolygon(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.Polygon
 	err := json.Unmarshal([]byte(geometryPolygon), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.Polygon{})
+		If(geo).Should().Be().Like(&geojson.Polygon{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.Polygon:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Surface{
-				{
-					{100.0, 0.0},
-					{101.0, 0.0},
-					{101.0, 1.0},
-					{100.0, 1.0},
-					{100.0, 0.0},
-				},
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Surface{
+			{
+				{100.0, 0.0},
+				{101.0, 0.0},
+				{101.0, 1.0},
+				{100.0, 1.0},
+				{100.0, 0.0},
 			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
+		},
+	)
 
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryPolygonWithHole(t *testing.T) {
-	var geo GeoJSON
+	var geo *geojson.Polygon
 	err := json.Unmarshal([]byte(geometryPolygonWithHole), &geo)
 
 	it.Ok(t).
 		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.Polygon{})
+		If(geo).Should().Be().Like(&geojson.Polygon{})
 
-	switch v := geo.Geometry.(type) {
-	case *geojson.Polygon:
-		it.Ok(t).If(v.Coords).Equal(
-			geojson.Surface{
+	it.Ok(t).If(geo.Coords).Equal(
+		geojson.Surface{
+			{
+				{100.0, 0.0},
+				{101.0, 0.0},
+				{101.0, 1.0},
+				{100.0, 1.0},
+				{100.0, 0.0},
+			},
+			{
+				{100.8, 0.8},
+				{100.8, 0.2},
+				{100.2, 0.2},
+				{100.2, 0.8},
+				{100.8, 0.8},
+			},
+		},
+	)
+
+	bbox := geo.BoundingBox()
+	it.Ok(t).If(bbox).Equal(
+		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+	)
+}
+
+func TestGeometryMultiPolygon(t *testing.T) {
+	var geo *geojson.MultiPolygon
+	err := json.Unmarshal([]byte(geometryMultiPolygon), &geo)
+
+	it.Ok(t).
+		IfNil(err).
+		If(geo).Should().Be().Like(&geojson.MultiPolygon{})
+
+	it.Ok(t).If(geo.Coords).Equal(
+		[]geojson.Surface{
+			{
+				{
+					{102.0, 2.0},
+					{103.0, 2.0},
+					{103.0, 3.0},
+					{102.0, 3.0},
+					{102.0, 2.0},
+				},
+			},
+			{
 				{
 					{100.0, 0.0},
 					{101.0, 0.0},
@@ -343,68 +335,17 @@ func TestGeometryPolygonWithHole(t *testing.T) {
 					{100.0, 0.0},
 				},
 				{
-					{100.8, 0.8},
-					{100.8, 0.2},
 					{100.2, 0.2},
 					{100.2, 0.8},
 					{100.8, 0.8},
+					{100.8, 0.2},
+					{100.2, 0.2},
 				},
 			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
-
-	bbox := geo.Geometry.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
-		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
+		},
 	)
-}
 
-func TestGeometryMultiPolygon(t *testing.T) {
-	var geo GeoJSON
-	err := json.Unmarshal([]byte(geometryMultiPolygon), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo.Geometry).Should().Be().Like(&geojson.MultiPolygon{})
-
-	switch v := geo.Geometry.(type) {
-	case *geojson.MultiPolygon:
-		it.Ok(t).If(v.Coords).Equal(
-			[]geojson.Surface{
-				{
-					{
-						{102.0, 2.0},
-						{103.0, 2.0},
-						{103.0, 3.0},
-						{102.0, 3.0},
-						{102.0, 2.0},
-					},
-				},
-				{
-					{
-						{100.0, 0.0},
-						{101.0, 0.0},
-						{101.0, 1.0},
-						{100.0, 1.0},
-						{100.0, 0.0},
-					},
-					{
-						{100.2, 0.2},
-						{100.2, 0.8},
-						{100.8, 0.8},
-						{100.8, 0.2},
-						{100.2, 0.2},
-					},
-				},
-			},
-		)
-	default:
-		t.Error("Invalid Coords Type")
-	}
-
-	bbox := geo.Geometry.BoundingBox()
+	bbox := geo.BoundingBox()
 	it.Ok(t).If(bbox).Equal(
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
