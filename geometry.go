@@ -10,6 +10,7 @@ package geojson
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type geometryType string
@@ -26,6 +27,7 @@ const (
 // Geometry Object represents points, curves, and surfaces in coordinate space.
 // It MUST be one of the seven geometry types.
 type Geometry interface {
+	Geometry() Shape
 	BoundingBox() BoundingBox
 	unmarshalGeoJSON(b []byte) error
 }
@@ -56,7 +58,7 @@ func decodeGeometry(b []byte) (Geometry, error) {
 	case typeMultiPolygon:
 		geo = &MultiPolygon{}
 	default:
-		return nil, ErrorUnsupportedType
+		return nil, fmt.Errorf("type %s is not supported as GeoJSON %s", gen.Type, "Geometry")
 	}
 
 	err := geo.unmarshalGeoJSON(gen.Coords)
@@ -67,6 +69,8 @@ func decodeGeometry(b []byte) (Geometry, error) {
 type Point struct {
 	Coords Coord `json:"coordinates,omitempty"`
 }
+
+func (geo *Point) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around the point
 func (geo *Point) BoundingBox() BoundingBox {
@@ -102,7 +106,7 @@ func (geo *Point) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typePoint {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (Point)(*bag.Struct)
@@ -121,6 +125,8 @@ func (geo *Point) unmarshalGeoJSON(b []byte) error {
 type MultiPoint struct {
 	Coords Curve `json:"coordinates,omitempty"`
 }
+
+func (geo *MultiPoint) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiPoint
 func (geo *MultiPoint) BoundingBox() BoundingBox {
@@ -156,7 +162,7 @@ func (geo *MultiPoint) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typeMultiPoint {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (MultiPoint)(*bag.Struct)
@@ -176,6 +182,8 @@ func (geo *MultiPoint) unmarshalGeoJSON(b []byte) error {
 type LineString struct {
 	Coords Curve `json:"coordinates,omitempty"`
 }
+
+func (geo *LineString) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around LineString
 func (geo *LineString) BoundingBox() BoundingBox {
@@ -211,7 +219,7 @@ func (geo *LineString) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typeLineString {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (LineString)(*bag.Struct)
@@ -231,6 +239,8 @@ func (geo *LineString) unmarshalGeoJSON(b []byte) error {
 type MultiLineString struct {
 	Coords Surface `json:"coordinates,omitempty"`
 }
+
+func (geo *MultiLineString) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiLineString
 func (geo *MultiLineString) BoundingBox() BoundingBox {
@@ -266,7 +276,7 @@ func (geo *MultiLineString) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typeMultiLineString {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (MultiLineString)(*bag.Struct)
@@ -290,6 +300,8 @@ func (geo *MultiLineString) unmarshalGeoJSON(b []byte) error {
 type Polygon struct {
 	Coords Surface `json:"coordinates,omitempty"`
 }
+
+func (geo *Polygon) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around Polygon
 func (geo *Polygon) BoundingBox() BoundingBox {
@@ -325,7 +337,7 @@ func (geo *Polygon) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typePolygon {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (Polygon)(*bag.Struct)
@@ -343,8 +355,10 @@ func (geo *Polygon) unmarshalGeoJSON(b []byte) error {
 // MultiPolygon type, the "coordinates" member is an array of
 // Polygon coordinate arrays.
 type MultiPolygon struct {
-	Coords []Surface `json:"coordinates,omitempty"`
+	Coords Surfaces `json:"coordinates,omitempty"`
 }
+
+func (geo *MultiPolygon) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiPolygon
 func (geo *MultiPolygon) BoundingBox() BoundingBox {
@@ -388,7 +402,7 @@ func (geo *MultiPolygon) UnmarshalJSON(b []byte) error {
 	}
 
 	if bag.Type != typeMultiPolygon {
-		return ErrorUnsupportedType
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
 	}
 
 	*geo = (MultiPolygon)(*bag.Struct)

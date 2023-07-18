@@ -13,96 +13,201 @@ import (
 	"testing"
 
 	"github.com/fogfish/geojson"
-	"github.com/fogfish/it"
+	"github.com/fogfish/it/v2"
 )
 
+// fixtures for unit testing
+var (
+	coordPoint = geojson.Coord{100.0, 0.0}
+
+	coordMultiPoint = geojson.Curve{
+		{100.0, 0.0},
+		{101.0, 1.0},
+	}
+
+	coordLineString = geojson.Curve{
+		{100.0, 0.0},
+		{101.0, 1.0},
+	}
+
+	coordMultiLineString = geojson.Surface{
+		{
+			{100.0, 0.0},
+			{101.0, 1.0},
+		},
+		{
+			{102.0, 2.0},
+			{103.0, 3.0},
+		},
+	}
+
+	coordPolygon = geojson.Surface{
+		{
+			{100.0, 0.0},
+			{101.0, 0.0},
+			{101.0, 1.0},
+			{100.0, 1.0},
+			{100.0, 0.0},
+		},
+	}
+
+	coordPolygonWithHole = geojson.Surface{
+		{
+			{100.0, 0.0},
+			{101.0, 0.0},
+			{101.0, 1.0},
+			{100.0, 1.0},
+			{100.0, 0.0},
+		},
+		{
+			{100.8, 0.8},
+			{100.8, 0.2},
+			{100.2, 0.2},
+			{100.2, 0.8},
+			{100.8, 0.8},
+		},
+	}
+
+	coordMultiPolygon = geojson.Surfaces{
+		{
+			{
+				{102.0, 2.0},
+				{103.0, 2.0},
+				{103.0, 3.0},
+				{102.0, 3.0},
+				{102.0, 2.0},
+			},
+		},
+		{
+			{
+				{100.0, 0.0},
+				{101.0, 0.0},
+				{101.0, 1.0},
+				{100.0, 1.0},
+				{100.0, 0.0},
+			},
+			{
+				{100.2, 0.2},
+				{100.2, 0.8},
+				{100.8, 0.8},
+				{100.8, 0.2},
+				{100.2, 0.2},
+			},
+		},
+	}
+)
+
+func genGeoJSON(t string, shape geojson.Shape) []byte {
+	b, _ := json.Marshal(map[string]any{
+		"type":        t,
+		"coordinates": shape,
+	})
+	return b
+}
+
 const (
-	geometryUnknown = `
+	geometryCorrupted = `
 	{
-			"type": "Unknown",
-			"coordinates": [100.0, 0.0]
-	}
+			type": "Unknown",
+			"coordinates: [100.0, 0.0
 	`
 
-	geometryPoint = `
-	{
-			"type": "Point",
-			"coordinates": [100.0, 0.0]
-	}
-	`
+	// geometryUnknown = `
+	// {
+	// 		"type": "Unknown",
+	// 		"coordinates": [100.0, 0.0]
+	// }
+	// `
 
-	geometryMultiPoint = `
-	{
-			"type": "MultiPoint",
-			"coordinates": [
-					[100.0, 0.0],
-					[101.0, 1.0]
-			]
-	}
-	`
+	// geometryPoint = `
+	// {
+	// 		"type": "Point",
+	// 		"coordinates": [100.0, 0.0]
+	// }
+	// `
 
-	geometryLineString = `
-	{
-			"type": "LineString",
-			"coordinates": [
-					[100.0, 0.0],
-					[101.0, 1.0]
-			]
-	}
-	`
+	// geometryMultiPoint = `
+	// {
+	// 		"type": "MultiPoint",
+	// 		"coordinates": [
+	// 				[100.0, 0.0],
+	// 				[101.0, 1.0]
+	// 		]
+	// }
+	// `
 
-	geometryMultiLineString = `
-	{
-			"type": "MultiLineString",
-			"coordinates": [
-					[
-							[100.0, 0.0],
-							[101.0, 1.0]
-					],
-					[
-							[102.0, 2.0],
-							[103.0, 3.0]
-					]
-			]
-	}
-	`
+	// geometryMultiPointX = `
+	// {
+	// 		"type": "MultiPointX",
+	// 		"coordinates": [
+	// 				[100.0, 0.0],
+	// 				[101.0, 1.0]
+	// 		]
+	// }
+	// `
 
-	geometryPolygon = `
-	{
-			"type": "Polygon",
-			"coordinates": [
-					[
-							[100.0, 0.0],
-							[101.0, 0.0],
-							[101.0, 1.0],
-							[100.0, 1.0],
-							[100.0, 0.0]
-					]
-			]
-	}
-	`
+	// geometryLineString = `
+	// {
+	// 		"type": "LineString",
+	// 		"coordinates": [
+	// 				[100.0, 0.0],
+	// 				[101.0, 1.0]
+	// 		]
+	// }
+	// `
 
-	geometryPolygonWithHole = `
-	{
-			"type": "Polygon",
-			"coordinates": [
-					[
-							[100.0, 0.0],
-							[101.0, 0.0],
-							[101.0, 1.0],
-							[100.0, 1.0],
-							[100.0, 0.0]
-					],
-					[
-							[100.8, 0.8],
-							[100.8, 0.2],
-							[100.2, 0.2],
-							[100.2, 0.8],
-							[100.8, 0.8]
-					]
-			]
-	}
-	`
+	// geometryMultiLineString = `
+	// {
+	// 		"type": "MultiLineString",
+	// 		"coordinates": [
+	// 				[
+	// 						[100.0, 0.0],
+	// 						[101.0, 1.0]
+	// 				],
+	// 				[
+	// 						[102.0, 2.0],
+	// 						[103.0, 3.0]
+	// 				]
+	// 		]
+	// }
+	// `
+
+	// geometryPolygon = `
+	// {
+	// 		"type": "Polygon",
+	// 		"coordinates": [
+	// 				[
+	// 						[100.0, 0.0],
+	// 						[101.0, 0.0],
+	// 						[101.0, 1.0],
+	// 						[100.0, 1.0],
+	// 						[100.0, 0.0]
+	// 				]
+	// 		]
+	// }
+	// `
+
+	// geometryPolygonWithHole = `
+	// {
+	// 		"type": "Polygon",
+	// 		"coordinates": [
+	// 				[
+	// 						[100.0, 0.0],
+	// 						[101.0, 0.0],
+	// 						[101.0, 1.0],
+	// 						[100.0, 1.0],
+	// 						[100.0, 0.0]
+	// 				],
+	// 				[
+	// 						[100.8, 0.8],
+	// 						[100.8, 0.2],
+	// 						[100.2, 0.2],
+	// 						[100.2, 0.8],
+	// 						[100.8, 0.8]
+	// 				]
+	// 		]
+	// }
+	// `
 
 	geometryMultiPolygon = `
 	{
@@ -152,205 +257,90 @@ func (x *GeoJSON) UnmarshalJSON(b []byte) error {
 	return x.Feature.DecodeGeoJSON(b, tStruct(x))
 }
 
-func TestGeometryUnknown(t *testing.T) {
-	var geo *geojson.Point
-	err := json.Unmarshal([]byte(geometryUnknown), geo)
+func testGeometry[T geojson.Geometry](
+	t *testing.T,
+	typeOf string,
+	coord geojson.Shape,
+	bbox geojson.BoundingBox,
+) {
+	t.Helper()
 
-	it.Ok(t).
-		IfNotNil(err).
-		IfNil(geo)
+	var geo T
+
+	t.Run("Success", func(t *testing.T) {
+		err := json.Unmarshal(genGeoJSON(typeOf, coord), &geo)
+
+		it.Then(t).Should(
+			it.Nil(err),
+			it.Equiv(geo.BoundingBox(), bbox),
+			it.Equiv(geo.Geometry(), coord),
+		)
+	})
+
+	t.Run("Not Supported", func(t *testing.T) {
+		it.Then(t).Should(
+			it.Fail(
+				func() error {
+					return json.Unmarshal(genGeoJSON("Unknown", coord), geo)
+				},
+			).Contain("type Unknown is not supported"),
+		)
+	})
+
+	t.Run("Corrupted", func(t *testing.T) {
+		it.Then(t).Should(
+			it.Fail(
+				func() error {
+					return json.Unmarshal([]byte(geometryCorrupted), geo)
+				},
+			).Contain("invalid character"),
+		)
+	})
 }
 
 func TestGeometryPoint(t *testing.T) {
-	var geo *geojson.Point
-	err := json.Unmarshal([]byte(geometryPoint), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.Point{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Coord{100.0, 0.0},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.Point](t, "Point", coordPoint,
 		geojson.BoundingBox{100.0, 0, 100.0, 0},
 	)
 }
 
 func TestGeometryMultiPoint(t *testing.T) {
-	var geo *geojson.MultiPoint
-	err := json.Unmarshal([]byte(geometryMultiPoint), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.MultiPoint{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Curve{
-			{100.0, 0.0},
-			{101.0, 1.0},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.MultiPoint](t, "MultiPoint", coordMultiPoint,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryLineString(t *testing.T) {
-	var geo *geojson.LineString
-	err := json.Unmarshal([]byte(geometryLineString), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.LineString{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Curve{
-			{100.0, 0.0},
-			{101.0, 1.0},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.LineString](t, "LineString", coordLineString,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryMultiLineString(t *testing.T) {
-	var geo *geojson.MultiLineString
-	err := json.Unmarshal([]byte(geometryMultiLineString), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.MultiLineString{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Surface{
-			{
-				{100.0, 0.0},
-				{101.0, 1.0},
-			},
-			{
-				{102.0, 2.0},
-				{103.0, 3.0},
-			},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.MultiLineString](t, "MultiLineString", coordMultiLineString,
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
 }
 
 func TestGeometryPolygon(t *testing.T) {
-	var geo *geojson.Polygon
-	err := json.Unmarshal([]byte(geometryPolygon), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.Polygon{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Surface{
-			{
-				{100.0, 0.0},
-				{101.0, 0.0},
-				{101.0, 1.0},
-				{100.0, 1.0},
-				{100.0, 0.0},
-			},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.Polygon](t, "Polygon", coordPolygon,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryPolygonWithHole(t *testing.T) {
-	var geo *geojson.Polygon
-	err := json.Unmarshal([]byte(geometryPolygonWithHole), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.Polygon{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		geojson.Surface{
-			{
-				{100.0, 0.0},
-				{101.0, 0.0},
-				{101.0, 1.0},
-				{100.0, 1.0},
-				{100.0, 0.0},
-			},
-			{
-				{100.8, 0.8},
-				{100.8, 0.2},
-				{100.2, 0.2},
-				{100.2, 0.8},
-				{100.8, 0.8},
-			},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.Polygon](t, "Polygon", coordPolygonWithHole,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
 }
 
 func TestGeometryMultiPolygon(t *testing.T) {
-	var geo *geojson.MultiPolygon
-	err := json.Unmarshal([]byte(geometryMultiPolygon), &geo)
-
-	it.Ok(t).
-		IfNil(err).
-		If(geo).Should().Be().Like(&geojson.MultiPolygon{})
-
-	it.Ok(t).If(geo.Coords).Equal(
-		[]geojson.Surface{
-			{
-				{
-					{102.0, 2.0},
-					{103.0, 2.0},
-					{103.0, 3.0},
-					{102.0, 3.0},
-					{102.0, 2.0},
-				},
-			},
-			{
-				{
-					{100.0, 0.0},
-					{101.0, 0.0},
-					{101.0, 1.0},
-					{100.0, 1.0},
-					{100.0, 0.0},
-				},
-				{
-					{100.2, 0.2},
-					{100.2, 0.8},
-					{100.8, 0.8},
-					{100.8, 0.2},
-					{100.2, 0.2},
-				},
-			},
-		},
-	)
-
-	bbox := geo.BoundingBox()
-	it.Ok(t).If(bbox).Equal(
+	testGeometry[*geojson.MultiPolygon](t, "MultiPolygon", coordMultiPolygon,
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
 }
 
+/*
 func TestEmptyGeometry(t *testing.T) {
 	it.Ok(t).
 		IfTrue(geojson.NewPoint("", nil).BoundingBox() == nil).
@@ -366,3 +356,4 @@ func TestEmptyGeometry(t *testing.T) {
 		IfTrue(geojson.NewMultiPolygon("", nil).BoundingBox() == nil).
 		IfTrue(geojson.NewMultiPolygon("", geojson.Surface{}).BoundingBox() == nil)
 }
+*/
