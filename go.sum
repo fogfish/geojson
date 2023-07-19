@@ -2,3 +2,5 @@ github.com/fogfish/curie v1.8.2 h1:+4CezyjZ5uszSXUZAV27gfKwv58w3lKTH0JbQwh3S9A=
 github.com/fogfish/curie v1.8.2/go.mod h1:jPv7pg4hHd8Ug/USG29ZA2bAwlRfh/iinY90/30ATGg=
 github.com/fogfish/it v0.9.1 h1:Pu+qgqBV2ilZDzZzPIbUIhMIkdpHgbGUsdEwVQvBxNQ=
 github.com/fogfish/it v0.9.1/go.mod h1:NQJG4Ygvek85y7zGj0Gny8+6ygAnHjfBORhI7TdQhp4=
+github.com/fogfish/it/v2 v2.0.1 h1:vu3kV2xzYDPHoMHMABxXeu5CoMcTfRc4gkWkzOUkRJY=
+github.com/fogfish/it/v2 v2.0.1/go.mod h1:h5FdKaEQT4sUEykiVkB8VV4jX27XabFVeWhoDZaRZtE=

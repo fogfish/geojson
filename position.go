@@ -8,6 +8,10 @@
 
 package geojson
 
+type Shape interface {
+	FMap(func(Coord))
+}
+
 // Coord is the fundamental geometry construct.
 // A position is an array of numbers that defines projected
 // coordinates. The first two elements are Euclidian coordinates
@@ -43,6 +47,15 @@ type Surface []Curve
 
 // FMap applies a function to each coords pair
 func (seq Surface) FMap(f func(Coord)) {
+	for _, x := range seq {
+		x.FMap(f)
+	}
+}
+
+type Surfaces []Surface
+
+// FMap applies a function to each coords pair
+func (seq Surfaces) FMap(f func(Coord)) {
 	for _, x := range seq {
 		x.FMap(f)
 	}

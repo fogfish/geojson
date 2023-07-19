@@ -10,6 +10,7 @@ package geojson
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type geometryType string
@@ -26,9 +27,9 @@ const (
 // Geometry Object represents points, curves, and surfaces in coordinate space.
 // It MUST be one of the seven geometry types.
 type Geometry interface {
+	Geometry() Shape
 	BoundingBox() BoundingBox
-	MarshalGeoJSON() ([]byte, error)
-	UnmarshalGeoJSON(b []byte) error
+	unmarshalGeoJSON(b []byte) error
 }
 
 // UnmarshalJSON decodes Geometry from GeoJSON
@@ -57,15 +58,19 @@ func decodeGeometry(b []byte) (Geometry, error) {
 	case typeMultiPolygon:
 		geo = &MultiPolygon{}
 	default:
-		return nil, ErrorUnsupportedType
+		return nil, fmt.Errorf("type %s is not supported as GeoJSON %s", gen.Type, "Geometry")
 	}
 
-	err := geo.UnmarshalGeoJSON(gen.Coords)
+	err := geo.unmarshalGeoJSON(gen.Coords)
 	return geo, err
 }
 
 // Point type, the "coordinates" member is a single position.
-type Point struct{ Coords Coord }
+type Point struct {
+	Coords Coord `json:"coordinates,omitempty"`
+}
+
+func (geo *Point) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around the point
 func (geo *Point) BoundingBox() BoundingBox {
@@ -76,16 +81,40 @@ func (geo *Point) BoundingBox() BoundingBox {
 	return boundingBox(geo.Coords, geo.Coords)
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *Point) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typePoint,
-		"coordinates": geo.Coords,
+// Encode Point Geometry to GeoJSON format
+func (geo *Point) MarshalJSON() ([]byte, error) {
+	type Struct Point
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typePoint,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode Point Geometry from GeoJSON format
+func (geo *Point) UnmarshalJSON(b []byte) error {
+	type Struct Point
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typePoint {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (Point)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *Point) UnmarshalGeoJSON(b []byte) error {
+func (geo *Point) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
@@ -93,7 +122,11 @@ func (geo *Point) UnmarshalGeoJSON(b []byte) error {
 }
 
 // MultiPoint type, the "coordinates" member is an array of positions.
-type MultiPoint struct{ Coords Curve }
+type MultiPoint struct {
+	Coords Curve `json:"coordinates,omitempty"`
+}
+
+func (geo *MultiPoint) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiPoint
 func (geo *MultiPoint) BoundingBox() BoundingBox {
@@ -104,16 +137,40 @@ func (geo *MultiPoint) BoundingBox() BoundingBox {
 	return boundingBox(geo.Coords[0], geo.Coords)
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *MultiPoint) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typeMultiPoint,
-		"coordinates": geo.Coords,
+// Encode MultiPoint Geometry to GeoJSON format
+func (geo *MultiPoint) MarshalJSON() ([]byte, error) {
+	type Struct MultiPoint
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typeMultiPoint,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode MultiPoint Geometry from GeoJSON format
+func (geo *MultiPoint) UnmarshalJSON(b []byte) error {
+	type Struct MultiPoint
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typeMultiPoint {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (MultiPoint)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *MultiPoint) UnmarshalGeoJSON(b []byte) error {
+func (geo *MultiPoint) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
@@ -122,7 +179,11 @@ func (geo *MultiPoint) UnmarshalGeoJSON(b []byte) error {
 
 // LineString type, the "coordinates" member is an array of two or
 // more positions.
-type LineString struct{ Coords Curve }
+type LineString struct {
+	Coords Curve `json:"coordinates,omitempty"`
+}
+
+func (geo *LineString) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around LineString
 func (geo *LineString) BoundingBox() BoundingBox {
@@ -133,16 +194,40 @@ func (geo *LineString) BoundingBox() BoundingBox {
 	return boundingBox(geo.Coords[0], geo.Coords)
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *LineString) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typeLineString,
-		"coordinates": geo.Coords,
+// Encode Point Geometry to GeoJSON format
+func (geo *LineString) MarshalJSON() ([]byte, error) {
+	type Struct LineString
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typeLineString,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode Point Geometry from GeoJSON format
+func (geo *LineString) UnmarshalJSON(b []byte) error {
+	type Struct LineString
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typeLineString {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (LineString)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *LineString) UnmarshalGeoJSON(b []byte) error {
+func (geo *LineString) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
@@ -151,7 +236,11 @@ func (geo *LineString) UnmarshalGeoJSON(b []byte) error {
 
 // MultiLineString type, the "coordinates" member is an array of
 // LineString coordinate arrays.
-type MultiLineString struct{ Coords Surface }
+type MultiLineString struct {
+	Coords Surface `json:"coordinates,omitempty"`
+}
+
+func (geo *MultiLineString) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiLineString
 func (geo *MultiLineString) BoundingBox() BoundingBox {
@@ -162,16 +251,40 @@ func (geo *MultiLineString) BoundingBox() BoundingBox {
 	return boundingBox(geo.Coords[0][0], geo.Coords)
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *MultiLineString) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typeMultiLineString,
-		"coordinates": geo.Coords,
+// Encode MultiLineString Geometry to GeoJSON format
+func (geo *MultiLineString) MarshalJSON() ([]byte, error) {
+	type Struct MultiLineString
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typeMultiLineString,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode MultiLineString Geometry from GeoJSON format
+func (geo *MultiLineString) UnmarshalJSON(b []byte) error {
+	type Struct MultiLineString
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typeMultiLineString {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (MultiLineString)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *MultiLineString) UnmarshalGeoJSON(b []byte) error {
+func (geo *MultiLineString) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
@@ -184,7 +297,11 @@ func (geo *MultiLineString) UnmarshalGeoJSON(b []byte) error {
 // A linear ring is a closed LineString with four or more positions.
 // The first and last positions are equivalent, and they MUST contain
 // identical values; their representation SHOULD also be identical.
-type Polygon struct{ Coords Surface }
+type Polygon struct {
+	Coords Surface `json:"coordinates,omitempty"`
+}
+
+func (geo *Polygon) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around Polygon
 func (geo *Polygon) BoundingBox() BoundingBox {
@@ -195,16 +312,40 @@ func (geo *Polygon) BoundingBox() BoundingBox {
 	return boundingBox(geo.Coords[0][0], geo.Coords)
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *Polygon) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typePolygon,
-		"coordinates": geo.Coords,
+// Encode Point Geometry to GeoJSON format
+func (geo *Polygon) MarshalJSON() ([]byte, error) {
+	type Struct Polygon
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typePolygon,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode Point Geometry from GeoJSON format
+func (geo *Polygon) UnmarshalJSON(b []byte) error {
+	type Struct Polygon
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typePolygon {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (Polygon)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *Polygon) UnmarshalGeoJSON(b []byte) error {
+func (geo *Polygon) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
@@ -213,7 +354,11 @@ func (geo *Polygon) UnmarshalGeoJSON(b []byte) error {
 
 // MultiPolygon type, the "coordinates" member is an array of
 // Polygon coordinate arrays.
-type MultiPolygon struct{ Coords []Surface }
+type MultiPolygon struct {
+	Coords Surfaces `json:"coordinates,omitempty"`
+}
+
+func (geo *MultiPolygon) Geometry() Shape { return geo.Coords }
 
 // BoundingBox around MultiPolygon
 func (geo *MultiPolygon) BoundingBox() BoundingBox {
@@ -232,16 +377,40 @@ func (geo *MultiPolygon) BoundingBox() BoundingBox {
 	return bbox
 }
 
-// MarshalGeoJSON encodes geometry type to GeoJSON
-func (geo *MultiPolygon) MarshalGeoJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":        typeMultiPolygon,
-		"coordinates": geo.Coords,
+// Encode Point Geometry to GeoJSON format
+func (geo *MultiPolygon) MarshalJSON() ([]byte, error) {
+	type Struct MultiPolygon
+	return json.Marshal(&struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}{
+		Type:   typeMultiPolygon,
+		Struct: (*Struct)(geo),
 	})
 }
 
+// Decode Point Geometry from GeoJSON format
+func (geo *MultiPolygon) UnmarshalJSON(b []byte) error {
+	type Struct MultiPolygon
+	var bag struct {
+		Type geometryType `json:"type"`
+		*Struct
+	}
+
+	if err := json.Unmarshal(b, &bag); err != nil {
+		return err
+	}
+
+	if bag.Type != typeMultiPolygon {
+		return fmt.Errorf("type %s is not supported as GeoJSON %s", bag.Type, typePoint)
+	}
+
+	*geo = (MultiPolygon)(*bag.Struct)
+	return nil
+}
+
 // UnmarshalGeoJSON decodes geometry type from GeoJSON
-func (geo *MultiPolygon) UnmarshalGeoJSON(b []byte) error {
+func (geo *MultiPolygon) unmarshalGeoJSON(b []byte) error {
 	if err := json.Unmarshal(b, &geo.Coords); err != nil {
 		return err
 	}
