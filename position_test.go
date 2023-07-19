@@ -70,6 +70,29 @@ func TestSurface(t *testing.T) {
 		If(seq).Equal([]float64{100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0})
 }
 
+func TestSurfaces(t *testing.T) {
+	p := geojson.Surfaces{
+		{
+			{
+				{100.0, 0.0},
+				{101.0, 0.0},
+				{101.0, 1.0},
+				{100.0, 1.0},
+				{100.0, 0.0},
+			},
+		},
+	}
+
+	seq := []float64{}
+	p.FMap(func(x geojson.Coord) {
+		lat, lng := x.LatLng()
+		seq = append(seq, lng, lat)
+	})
+
+	it.Ok(t).
+		If(seq).Equal([]float64{100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0})
+}
+
 func TestBBox(t *testing.T) {
 	bbox := geojson.BoundingBox{-10.0, -20.0, +10.0, +20.0}
 
