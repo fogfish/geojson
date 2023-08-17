@@ -45,6 +45,19 @@ const (
 			}
 		}
 	`
+
+	featurePointEmpty = `
+	{
+		"type": "Feature",
+		"geometry": {
+			"type": "Point",
+			"coordinates": []
+		},
+		"properties": {
+			"name": "Helsinki"
+		}
+	}
+`
 )
 
 type City struct {
@@ -83,6 +96,23 @@ func TestFeatureDecode(t *testing.T) {
 	}
 }
 
+func TestFeatureDecodeEmpty(t *testing.T) {
+	var city GeoJsonCity
+	err := json.Unmarshal([]byte(featurePointEmpty), &city)
+
+	it.Ok(t).
+		IfNil(err).
+		If(city.Name).Equal("Helsinki").
+		If(city.Geometry).Should().Be().Like(geojson.Point{})
+
+	switch v := city.Geometry.(type) {
+	case *geojson.Point:
+		it.Ok(t).If(v.Coords).Equal(geojson.Coord{})
+	default:
+		t.Errorf("Invaid Coords Type")
+	}
+}
+
 func TestFeatureEncodePoint(t *testing.T) {
 	city := GeoJsonCity{
 		Feature: geojson.NewPoint(city_helsinki, geojson.Coord{100.0, 0.0}),
@@ -100,6 +130,32 @@ func TestFeatureEncodePoint(t *testing.T) {
 		If(c.ID).Equal(city_helsinki).
 		If(c.Name).Equal(city.Name).
 		If(c.Geometry).Should().Be().Like(geojson.Point{})
+}
+
+func TestFeatureEncodePointEmpty(t *testing.T) {
+	city := GeoJsonCity{
+		Feature: geojson.NewPoint(city_helsinki, geojson.Coord{}),
+		City:    City{Name: "Helsinki"},
+	}
+
+	data, err := json.Marshal(city)
+	it.Ok(t).IfNil(err)
+
+	var c GeoJsonCity
+	err = json.Unmarshal([]byte(data), &c)
+
+	it.Ok(t).
+		IfNil(err).
+		If(c.ID).Equal(city_helsinki).
+		If(c.Name).Equal(city.Name).
+		If(c.Geometry).Should().Be().Like(geojson.Point{})
+
+	switch v := city.Geometry.(type) {
+	case *geojson.Point:
+		it.Ok(t).If(v.Coords).Equal(geojson.Coord{})
+	default:
+		t.Errorf("Invaid Coords Type")
+	}
 }
 
 func TestFeatureEncodeMultiPoint(t *testing.T) {

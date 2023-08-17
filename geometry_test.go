@@ -158,10 +158,18 @@ func TestGeometryPoint(t *testing.T) {
 	)
 }
 
+func TestGeometryPointEmpty(t *testing.T) {
+	testGeometry[*geojson.Point](t, "Point", geojson.Coord{}, nil)
+}
+
 func TestGeometryMultiPoint(t *testing.T) {
 	testGeometry[*geojson.MultiPoint](t, "MultiPoint", coordMultiPoint,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
+}
+
+func TestGeometryMultiPointEmpty(t *testing.T) {
+	testGeometry[*geojson.MultiPoint](t, "MultiPoint", geojson.Curve{}, nil)
 }
 
 func TestGeometryLineString(t *testing.T) {
@@ -170,16 +178,28 @@ func TestGeometryLineString(t *testing.T) {
 	)
 }
 
+func TestGeometryLineStringEmpty(t *testing.T) {
+	testGeometry[*geojson.LineString](t, "LineString", geojson.Curve{}, nil)
+}
+
 func TestGeometryMultiLineString(t *testing.T) {
 	testGeometry[*geojson.MultiLineString](t, "MultiLineString", coordMultiLineString,
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
 }
 
+func TestGeometryMultiLineStringEmpty(t *testing.T) {
+	testGeometry[*geojson.MultiLineString](t, "MultiLineString", geojson.Surface{}, nil)
+}
+
 func TestGeometryPolygon(t *testing.T) {
 	testGeometry[*geojson.Polygon](t, "Polygon", coordPolygon,
 		geojson.BoundingBox{100.0, 0, 101.0, 1.0},
 	)
+}
+
+func TestGeometryPolygonEmpty(t *testing.T) {
+	testGeometry[*geojson.Polygon](t, "Polygon", geojson.Surface{}, nil)
 }
 
 func TestGeometryPolygonWithHole(t *testing.T) {
@@ -192,6 +212,10 @@ func TestGeometryMultiPolygon(t *testing.T) {
 	testGeometry[*geojson.MultiPolygon](t, "MultiPolygon", coordMultiPolygon,
 		geojson.BoundingBox{100.0, 0, 103.0, 3.0},
 	)
+}
+
+func TestGeometryMultiPolygonEmpty(t *testing.T) {
+	testGeometry[*geojson.MultiPolygon](t, "MultiPolygon", geojson.Surfaces{}, nil)
 }
 
 func TestEmptyGeometry(t *testing.T) {
