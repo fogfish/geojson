@@ -67,7 +67,7 @@ func decodeGeometry(b []byte) (Geometry, error) {
 
 // Point type, the "coordinates" member is a single position.
 type Point struct {
-	Coords Coord `json:"coordinates,omitempty"`
+	Coords Coord `json:"coordinates"`
 }
 
 func (geo *Point) Geometry() Shape { return geo.Coords }
@@ -123,7 +123,7 @@ func (geo *Point) unmarshalGeoJSON(b []byte) error {
 
 // MultiPoint type, the "coordinates" member is an array of positions.
 type MultiPoint struct {
-	Coords Curve `json:"coordinates,omitempty"`
+	Coords Curve `json:"coordinates"`
 }
 
 func (geo *MultiPoint) Geometry() Shape { return geo.Coords }
@@ -180,7 +180,7 @@ func (geo *MultiPoint) unmarshalGeoJSON(b []byte) error {
 // LineString type, the "coordinates" member is an array of two or
 // more positions.
 type LineString struct {
-	Coords Curve `json:"coordinates,omitempty"`
+	Coords Curve `json:"coordinates"`
 }
 
 func (geo *LineString) Geometry() Shape { return geo.Coords }
@@ -237,7 +237,7 @@ func (geo *LineString) unmarshalGeoJSON(b []byte) error {
 // MultiLineString type, the "coordinates" member is an array of
 // LineString coordinate arrays.
 type MultiLineString struct {
-	Coords Surface `json:"coordinates,omitempty"`
+	Coords Surface `json:"coordinates"`
 }
 
 func (geo *MultiLineString) Geometry() Shape { return geo.Coords }
@@ -298,7 +298,7 @@ func (geo *MultiLineString) unmarshalGeoJSON(b []byte) error {
 // The first and last positions are equivalent, and they MUST contain
 // identical values; their representation SHOULD also be identical.
 type Polygon struct {
-	Coords Surface `json:"coordinates,omitempty"`
+	Coords Surface `json:"coordinates"`
 }
 
 func (geo *Polygon) Geometry() Shape { return geo.Coords }
@@ -355,7 +355,7 @@ func (geo *Polygon) unmarshalGeoJSON(b []byte) error {
 // MultiPolygon type, the "coordinates" member is an array of
 // Polygon coordinate arrays.
 type MultiPolygon struct {
-	Coords Surfaces `json:"coordinates,omitempty"`
+	Coords Surfaces `json:"coordinates"`
 }
 
 func (geo *MultiPolygon) Geometry() Shape { return geo.Coords }
