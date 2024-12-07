@@ -56,12 +56,17 @@ GeoJSON is a popular format for encoding a variety of geographic data structures
 }
 ```
 
-Unfortunately, efficient and type-safe implementation of GeoJSON codec requires generics. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries. As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
+Unfortunately, efficient and type-safe implementation of GeoJSON codec can be challenging:
+
+(i) Pure structs are verbose. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries. As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
+
+(ii) Implementing GeoJSON types using generics is requires overly complex type definitions. It can lead to complex type hierarchies, especially in nested GeoJSON structures like FeatureCollection. It suffers from usability for consumers. Specifying types for properties at every level (e.g., Feature or FeatureCollection) adds boilerplate and increases the learning curve.
+
 
 
 ## Key features
 
-The library allows developers to use Golang struct to define domain models using a type safe approach of encoding/decoding these models to GeoJSON and back. The library uses type tagging technique to annotate any structure as GeoJSON feature:  
+The library allows developers to use Golang pure struct to define domain models using a type safe approach of encoding/decoding these models to GeoJSON and back. The library uses type tagging technique to annotate any structure as GeoJSON feature:  
 
 ```go
 type City struct {

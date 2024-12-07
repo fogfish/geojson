@@ -13,7 +13,7 @@ import (
 	"testing"
 
 	"github.com/fogfish/geojson"
-	"github.com/fogfish/it"
+	"github.com/fogfish/it/v2"
 )
 
 func TestCollection(t *testing.T) {
@@ -37,14 +37,15 @@ func TestCollection(t *testing.T) {
 	}
 
 	bin, err := json.Marshal(seq)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c geojson.Collection[GeoJsonCity]
 	err = json.Unmarshal([]byte(bin), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.Features[0]).Equal(spb).
-		If(c.Features[1]).Equal(hel).
-		If(c.Features[2]).Equal(sto)
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equiv(c.Features[0], spb),
+		it.Equiv(c.Features[1], hel),
+		it.Equiv(c.Features[2], sto),
+	)
 }

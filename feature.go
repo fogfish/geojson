@@ -11,7 +11,7 @@ package geojson
 import (
 	"encoding/json"
 
-	"github.com/fogfish/curie"
+	"github.com/fogfish/curie/v2"
 )
 
 // Feature object represents a spatially bounded thing.
@@ -40,13 +40,13 @@ func (fea Feature) BoundingBox() BoundingBox { return fea.Geometry.BoundingBox()
 //		type tStruct MyType
 //		return x.Feature.EncodeGeoJSON(tStruct(x))
 //	}
-func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
+func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 	properties, err := json.Marshal(props)
 	if err != nil {
 		return nil, err
 	}
 
-	any := struct {
+	val := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
 		ID         curie.IRI       `json:"id,omitempty"`
@@ -60,7 +60,7 @@ func (fea Feature) EncodeGeoJSON(props interface{}) ([]byte, error) {
 		Properties: properties,
 	}
 
-	return json.Marshal(any)
+	return json.Marshal(val)
 }
 
 // anyGeoJSON is an internal type used for decode of GeoJSON

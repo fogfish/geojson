@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/fogfish/geojson"
-	"github.com/fogfish/it"
+	"github.com/fogfish/it/v2"
 )
 
 func TestPosition(t *testing.T) {
@@ -25,12 +25,13 @@ func TestPosition(t *testing.T) {
 		seq = append(seq, lng, lat)
 	})
 
-	it.Ok(t).
-		If(lat).Equal(0.0).
-		If(lng).Equal(100.0).
-		If(p.Lat()).Equal(lat).
-		If(p.Lng()).Equal(lng).
-		If(seq).Equal([]float64{100.0, 0.0})
+	it.Then(t).Should(
+		it.Equal(lat, 0.0),
+		it.Equal(lng, 100.0),
+		it.Equal(p.Lat(), lat),
+		it.Equal(p.Lng(), lng),
+		it.Seq(seq).Equal(100.0, 0.0),
+	)
 }
 
 func TestSequence(t *testing.T) {
@@ -45,8 +46,9 @@ func TestSequence(t *testing.T) {
 		seq = append(seq, lng, lat)
 	})
 
-	it.Ok(t).
-		If(seq).Equal([]float64{100.0, 0.0, 100.0, 0.0})
+	it.Then(t).Should(
+		it.Seq(seq).Equal(100.0, 0.0, 100.0, 0.0),
+	)
 }
 
 func TestSurface(t *testing.T) {
@@ -66,8 +68,9 @@ func TestSurface(t *testing.T) {
 		seq = append(seq, lng, lat)
 	})
 
-	it.Ok(t).
-		If(seq).Equal([]float64{100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0})
+	it.Then(t).Should(
+		it.Seq(seq).Equal(100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0),
+	)
 }
 
 func TestSurfaces(t *testing.T) {
@@ -89,16 +92,18 @@ func TestSurfaces(t *testing.T) {
 		seq = append(seq, lng, lat)
 	})
 
-	it.Ok(t).
-		If(seq).Equal([]float64{100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0})
+	it.Then(t).Should(
+		it.Seq(seq).Equal(100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0),
+	)
 }
 
 func TestBBox(t *testing.T) {
 	bbox := geojson.BoundingBox{-10.0, -20.0, +10.0, +20.0}
 
-	it.Ok(t).
-		If(bbox.SouthWest().Lng()).Equal(-10.0).
-		If(bbox.SouthWest().Lat()).Equal(-20.0).
-		If(bbox.NorthEast().Lng()).Equal(+10.0).
-		If(bbox.NorthEast().Lat()).Equal(+20.0)
+	it.Then(t).Should(
+		it.Equal(bbox.SouthWest().Lng(), -10.0),
+		it.Equal(bbox.SouthWest().Lat(), -20.0),
+		it.Equal(bbox.NorthEast().Lng(), +10.0),
+		it.Equal(bbox.NorthEast().Lat(), +20.0),
+	)
 }
