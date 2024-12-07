@@ -12,9 +12,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/fogfish/curie"
+	"github.com/fogfish/curie/v2"
 	"github.com/fogfish/geojson"
-	"github.com/fogfish/it"
+	"github.com/fogfish/it/v2"
 )
 
 const (
@@ -83,34 +83,22 @@ func TestFeatureDecode(t *testing.T) {
 	var city GeoJsonCity
 	err := json.Unmarshal([]byte(featurePoint), &city)
 
-	it.Ok(t).
-		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry).Should().Be().Like(geojson.Point{})
-
-	switch v := city.Geometry.(type) {
-	case *geojson.Point:
-		it.Ok(t).If(v.Coords).Equal(geojson.Coord{102.0, 0.5})
-	default:
-		t.Errorf("Invaid Coords Type")
-	}
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(city.Name, "Helsinki"),
+		it.Like(city.Geometry, &geojson.Point{geojson.Coord{102.0, 0.5}}),
+	)
 }
 
 func TestFeatureDecodeEmpty(t *testing.T) {
 	var city GeoJsonCity
 	err := json.Unmarshal([]byte(featurePointEmpty), &city)
 
-	it.Ok(t).
-		IfNil(err).
-		If(city.Name).Equal("Helsinki").
-		If(city.Geometry).Should().Be().Like(geojson.Point{})
-
-	switch v := city.Geometry.(type) {
-	case *geojson.Point:
-		it.Ok(t).If(v.Coords).Equal(geojson.Coord{})
-	default:
-		t.Errorf("Invaid Coords Type")
-	}
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(city.Name, "Helsinki"),
+		it.Like(city.Geometry, &geojson.Point{geojson.Coord{}}),
+	)
 }
 
 func TestFeatureEncodePoint(t *testing.T) {
@@ -120,16 +108,17 @@ func TestFeatureEncodePoint(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.Point{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.Like(c.Geometry, &geojson.Point{geojson.Coord{100.0, 0.0}}),
+	)
 }
 
 func TestFeatureEncodePointEmpty(t *testing.T) {
@@ -139,23 +128,17 @@ func TestFeatureEncodePointEmpty(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.Point{})
-
-	switch v := city.Geometry.(type) {
-	case *geojson.Point:
-		it.Ok(t).If(v.Coords).Equal(geojson.Coord{})
-	default:
-		t.Errorf("Invaid Coords Type")
-	}
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.Like(c.Geometry, &geojson.Point{geojson.Coord{}}),
+	)
 }
 
 func TestFeatureEncodeMultiPoint(t *testing.T) {
@@ -170,16 +153,17 @@ func TestFeatureEncodeMultiPoint(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.MultiPoint{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.TypeOf[*geojson.MultiPoint](c.Geometry),
+	)
 }
 
 func TestFeatureEncodeLineString(t *testing.T) {
@@ -194,16 +178,17 @@ func TestFeatureEncodeLineString(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.LineString{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.TypeOf[*geojson.LineString](c.Geometry),
+	)
 }
 
 func TestFeatureEncodeMultiLineString(t *testing.T) {
@@ -224,16 +209,17 @@ func TestFeatureEncodeMultiLineString(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.MultiLineString{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.TypeOf[*geojson.MultiLineString](c.Geometry),
+	)
 }
 
 func TestFeatureEncodePolygon(t *testing.T) {
@@ -253,16 +239,17 @@ func TestFeatureEncodePolygon(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.Polygon{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.TypeOf[*geojson.Polygon](c.Geometry),
+	)
 }
 
 func TestFeatureEncodeMultiPolygon(t *testing.T) {
@@ -282,24 +269,27 @@ func TestFeatureEncodeMultiPolygon(t *testing.T) {
 	}
 
 	data, err := json.Marshal(city)
-	it.Ok(t).IfNil(err)
+	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCity
 	err = json.Unmarshal([]byte(data), &c)
 
-	it.Ok(t).
-		IfNil(err).
-		If(c.ID).Equal(city_helsinki).
-		If(c.Name).Equal(city.Name).
-		If(c.Geometry).Should().Be().Like(geojson.MultiPolygon{})
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, city_helsinki),
+		it.Equal(c.Name, city.Name),
+		it.TypeOf[*geojson.MultiPolygon](c.Geometry),
+	)
 }
 
 func TestFeatureInvalidDecode(t *testing.T) {
 	var city GeoJsonCity
 	err := json.Unmarshal([]byte(featureInvalid), &city)
 
-	it.Ok(t).
-		IfNotNil(err).
-		If(city.Name).Equal("").
-		IfNil(city.Geometry)
+	it.Then(t).ShouldNot(
+		it.Nil(err),
+	).Should(
+		it.Equal(city.Name, ""),
+		it.Nil(city.Geometry),
+	)
 }

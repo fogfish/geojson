@@ -8,9 +8,9 @@
 
 package geojson
 
-type Shape interface {
-	FMap(func(Coord))
-}
+// All position types implements shape interface,
+// allowing map function over coordinates.
+type Shape interface{ FMap(func(Coord)) }
 
 // Coord is the fundamental geometry construct.
 // A position is an array of numbers that defines projected
