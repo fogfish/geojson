@@ -141,6 +141,25 @@ func TestFeatureEncodePointEmpty(t *testing.T) {
 	)
 }
 
+func TestFeatureEncodeUndefined(t *testing.T) {
+	city := GeoJsonCity{
+		City: City{Name: "Helsinki"},
+	}
+
+	data, err := json.Marshal(city)
+	it.Then(t).Should(it.Nil(err))
+
+	var c GeoJsonCity
+	err = json.Unmarshal(data, &c)
+
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(c.ID, ""),
+		it.Equal(c.Name, city.Name),
+		it.Like(c.Geometry, &geojson.Point{geojson.Coord{}}),
+	)
+}
+
 func TestFeatureEncodeMultiPoint(t *testing.T) {
 	city := GeoJsonCity{
 		Feature: geojson.NewMultiPoint(city_helsinki,
@@ -160,6 +179,7 @@ func TestFeatureEncodeMultiPoint(t *testing.T) {
 
 	it.Then(t).Should(
 		it.Nil(err),
+
 		it.Equal(c.ID, city_helsinki),
 		it.Equal(c.Name, city.Name),
 		it.TypeOf[*geojson.MultiPoint](c.Geometry),
