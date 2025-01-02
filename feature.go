@@ -46,6 +46,11 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		return nil, err
 	}
 
+	geo := fea.Geometry
+	if geo == nil {
+		geo = &Point{Coords: Coord{}}
+	}
+
 	val := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
@@ -55,8 +60,8 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 	}{
 		ID:         fea.ID,
 		Type:       "Feature",
-		BBox:       fea.Geometry.BoundingBox(),
-		Geometry:   fea.Geometry,
+		BBox:       geo.BoundingBox(),
+		Geometry:   geo,
 		Properties: properties,
 	}
 
