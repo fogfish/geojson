@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="./doc/geojson.png" height="240" />
   <h3 align="center">GeoJSON</h3>
   <p align="center"><strong>GeoJSON codec for Go structs</strong></p>
 
@@ -27,16 +28,12 @@
     <a href="https://goreportcard.com/report/github.com/fogfish/geojson">
       <img src="https://goreportcard.com/badge/github.com/fogfish/geojson" />
     </a>
-    <!-- Maintainability -->
-    <a href="https://codeclimate.com/github/fogfish/geojson/maintainability">
-      <img src="https://api.codeclimate.com/v1/badges/26d27640175d439e8b94/maintainability" />
-    </a>
   </p>
 </p>
 
 ---
 
-The library implements a type safe codec for [GeoJSON](https://geojson.org). 
+The library implements a type safe codec for [GeoJSON](https://geojson.org) with the focus on encoding application specific data.  
 
 ## Inspiration
 
@@ -60,13 +57,13 @@ Unfortunately, efficient and type-safe implementation of GeoJSON codec can be ch
 
 (i) Pure structs are verbose. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries. As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
 
-(ii) Implementing GeoJSON types using generics is requires overly complex type definitions. It can lead to complex type hierarchies, especially in nested GeoJSON structures like FeatureCollection. It suffers from usability for consumers. Specifying types for properties at every level (e.g., Feature or FeatureCollection) adds boilerplate and increases the learning curve.
+(ii) Implementing GeoJSON types using generics is requires overly complex type definitions. It can lead to complex type hierarchies, especially in nested GeoJSON structures like FeatureCollection. It suffers from usability for client application. Specifying types for properties at every level (e.g., Feature or FeatureCollection) adds boilerplate and increases the learning curve.
 
 
 
 ## Key features
 
-The library allows developers to use Golang pure struct to define domain models using a type safe approach of encoding/decoding these models to GeoJSON and back. The library uses type tagging technique to annotate any structure as GeoJSON feature:  
+The library allows developers to use pure Golang struct to define domain models using a type safe approach of encoding/decoding these models to GeoJSON and back. The library uses type tagging technique to annotate any structure as GeoJSON feature:  
 
 ```go
 type City struct {
@@ -93,7 +90,7 @@ type City struct {
 }
 
 //
-// Each GeoJSON type declares codes using helper functions. 
+// Each GeoJSON type declares JSON codes using helper functions.
 func (x City) MarshalJSON() ([]byte, error) {
 	type tStruct City
 	return x.Feature.EncodeGeoJSON(tStruct(x))
@@ -121,13 +118,29 @@ city.Feature.Geometry.Coords.(*geojson.Point)
 
 ### Feature Collection
 
-The library supports `FeatureCollection` object via Golang generic.
+The library support feature collection through the collection type. It represents a collection of spatially bounded elements, as defined by the GeoJSON FeatureCollection standard. This construct is designed to support ["foreign members"](https://www.rfc-editor.org/rfc/rfc7946#section-6.1) for improved exchange of geospatial data. The value of a "foreign member" is determined by the application.
+
+**This library reuses the "properties" attribute, which acts as a foreign member within the context of collections.**
 
 ```go
-seq := geojson.Collection[City]{
-	Features: []City{city},
+type Cities struct {
+  geojson.Collection[City]
+  Country string `json:"country,omitempty"`
+}
+
+//
+// Each GeoJSON type declares JSON codes using helper functions.
+func (x Cities) MarshalJSON() ([]byte, error) {
+	type tStruct Cities
+	return x.Collection.EncodeGeoJSON(tStruct(x))
+}
+
+func (x *Cities) UnmarshalJSON(b []byte) error {
+	type tStruct *Cities
+	return x.Collection.DecodeGeoJSON(b, tStruct(x))
 }
 ```
+
 
 ## How To Contribute
 
