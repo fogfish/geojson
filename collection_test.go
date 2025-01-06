@@ -16,6 +16,21 @@ import (
 	"github.com/fogfish/it/v2"
 )
 
+type GeoJsonCities struct {
+	geojson.Collection[GeoJsonCity]
+	Name string `json:"name,omitempty"`
+}
+
+func (x GeoJsonCities) MarshalJSON() ([]byte, error) {
+	type tStruct GeoJsonCities
+	return x.Collection.EncodeGeoJSON(tStruct(x))
+}
+
+func (x *GeoJsonCities) UnmarshalJSON(b []byte) error {
+	type tStruct *GeoJsonCities
+	return x.Collection.DecodeGeoJSON(b, tStruct(x))
+}
+
 func TestCollection(t *testing.T) {
 	spb := GeoJsonCity{
 		Feature: geojson.NewPoint("city:spb", geojson.Coord{100.0, 0.0}),
@@ -32,14 +47,17 @@ func TestCollection(t *testing.T) {
 		City:    City{Name: "Stockholm"},
 	}
 
-	seq := geojson.Collection[GeoJsonCity]{
-		Features: []GeoJsonCity{spb, hel, sto},
+	seq := GeoJsonCities{
+		Collection: geojson.Collection[GeoJsonCity]{
+			Features: []GeoJsonCity{spb, hel, sto},
+		},
+		Name: "Cities",
 	}
 
-	bin, err := json.Marshal(seq)
+	bin, err := json.MarshalIndent(seq, " ", "  ")
 	it.Then(t).Should(it.Nil(err))
 
-	var c geojson.Collection[GeoJsonCity]
+	var c GeoJsonCities
 	err = json.Unmarshal([]byte(bin), &c)
 
 	it.Then(t).Should(
@@ -47,5 +65,6 @@ func TestCollection(t *testing.T) {
 		it.Equiv(c.Features[0], spb),
 		it.Equiv(c.Features[1], hel),
 		it.Equiv(c.Features[2], sto),
+		it.Equal(c.Name, "Cities"),
 	)
 }

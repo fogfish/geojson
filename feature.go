@@ -14,6 +14,8 @@ import (
 	"github.com/fogfish/curie/v2"
 )
 
+const TYPE_FEATURE = "Feature"
+
 // Feature object represents a spatially bounded thing.
 // This object contains geometry, a common identifier, and properties.
 // The value of the properties is any JSON object, typically defined by
@@ -51,6 +53,15 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		geo = &Point{Coords: Coord{}}
 	}
 
+	// Note: skip bounding box for the point.
+	var bbox BoundingBox
+	switch geo.(type) {
+	case *Point:
+		bbox = nil
+	default:
+		bbox = geo.BoundingBox()
+	}
+
 	val := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
@@ -59,8 +70,8 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
 		ID:         fea.ID,
-		Type:       "Feature",
-		BBox:       geo.BoundingBox(),
+		Type:       TYPE_FEATURE,
+		BBox:       bbox,
 		Geometry:   geo,
 		Properties: properties,
 	}
@@ -89,8 +100,8 @@ func (fea *Feature) DecodeGeoJSON(bytes []byte, props interface{}) error {
 		return err
 	}
 
-	if any.Type != "Feature" {
-		return ErrorUnsupportedType
+	if any.Type != TYPE_FEATURE {
+		return ErrUnsupportedType
 	}
 
 	return fea.decodeAnyGeoJSON(&any, props)
