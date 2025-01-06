@@ -54,7 +54,7 @@ func TestCollection(t *testing.T) {
 		Name: "Cities",
 	}
 
-	bin, err := json.MarshalIndent(seq, " ", "  ")
+	bin, err := json.Marshal(seq)
 	it.Then(t).Should(it.Nil(err))
 
 	var c GeoJsonCities
