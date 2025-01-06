@@ -56,7 +56,7 @@ Unfortunately, efficient and type-safe implementation of GeoJSON codec can be ch
 
 (i) Pure structs are verbose. The `properties` is an application specific and it's type is controlled outside of the codec library. Usage of duck type (`interface{}`) is a common trait used by other GeoJSON Golang libraries. As the results, developers are misses an ability to caught errors at compile time, any mistake becomes visible at run time as a panic. [interface{} says nothing.](https://youtu.be/PAAkCSZUG1c?t=7m40s).
 
-(ii) Implementing GeoJSON types using generics is requires overly complex type definitions. It can lead to complex type hierarchies, especially in nested GeoJSON structures like FeatureCollection. It suffers from usability for clien application. Specifying types for properties at every level (e.g., Feature or FeatureCollection) adds boilerplate and increases the learning curve.
+(ii) Implementing GeoJSON types using generics is requires overly complex type definitions. It can lead to complex type hierarchies, especially in nested GeoJSON structures like FeatureCollection. It suffers from usability for client application. Specifying types for properties at every level (e.g., Feature or FeatureCollection) adds boilerplate and increases the learning curve.
 
 
 
@@ -117,7 +117,7 @@ city.Feature.Geometry.Coords.(*geojson.Point)
 
 ### Feature Collection
 
-The library support feature collections through the collection type. It represents a collection of spatially bounded elements, as defined by the GeoJSON FeatureCollection standard. This construct is designed to support ["foreign members"](https://www.rfc-editor.org/rfc/rfc7946#section-6.1) for improved exchange of geospatial data. The value of a "foreign member" is determined by the application.
+The library support feature collection through the collection type. It represents a collection of spatially bounded elements, as defined by the GeoJSON FeatureCollection standard. This construct is designed to support ["foreign members"](https://www.rfc-editor.org/rfc/rfc7946#section-6.1) for improved exchange of geospatial data. The value of a "foreign member" is determined by the application.
 
 **This library reuses the "properties" attribute, which acts as a foreign member within the context of collections.**
 

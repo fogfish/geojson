@@ -76,32 +76,6 @@ func (c Collection[T]) EncodeGeoJSON(props any) ([]byte, error) {
 	return json.Marshal(val)
 }
 
-// Decodes FeatureCollection GeoJSON
-// func (c *Collection[T]) UnmarshalJSON(b []byte) error {
-// 	type anyCollection struct {
-// 		Type     string          `json:"type"`
-// 		Features json.RawMessage `json:"features,omitempty"`
-// 	}
-
-// 	any := anyCollection{}
-
-// 	if err := json.Unmarshal(b, &any); err != nil {
-// 		return err
-// 	}
-
-// 	if any.Type != TYPE_FEATURE_COLLECTION {
-// 		return ErrUnsupportedType
-// 	}
-
-// 	if any.Features != nil {
-// 		if err := json.Unmarshal(any.Features, &c.Features); err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-
 // DecodeGeoJSON is a helper function to implement GeoJSON codec
 //
 //	func (x *MyCollection) UnmarshalJSON(b []byte) error {
