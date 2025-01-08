@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./doc/geojson.png" height="240" />
+  <h3 align="center">{ ㆞ }</h3>
   <h3 align="center">GeoJSON</h3>
   <p align="center"><strong>GeoJSON codec for Go structs</strong></p>
 
@@ -14,7 +14,7 @@
     </a>
     <!-- Build Status  -->
     <a href="https://github.com/fogfish/geojson/actions/">
-      <img src="https://github.com/fogfish/geojson/workflows/test/badge.svg" />
+      <img src="https://github.com/fogfish/geojson/workflows/build/badge.svg" />
     </a>
     <!-- GitHub -->
     <a href="http://github.com/fogfish/geojson">
