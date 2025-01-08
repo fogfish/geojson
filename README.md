@@ -14,7 +14,7 @@
     </a>
     <!-- Build Status  -->
     <a href="https://github.com/fogfish/geojson/actions/">
-      <img src="https://github.com/fogfish/geojson/workflows/test/badge.svg" />
+      <img src="https://github.com/fogfish/geojson/workflows/build/badge.svg" />
     </a>
     <!-- GitHub -->
     <a href="http://github.com/fogfish/geojson">
