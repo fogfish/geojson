@@ -64,7 +64,7 @@ func (c Collection[T]) EncodeGeoJSON(props any) ([]byte, error) {
 	val := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
-		Features   []T             `json:"features,omitempty"`
+		Features   []T             `json:"features"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
 		Type:       TYPE_FEATURE_COLLECTION,
@@ -86,7 +86,7 @@ func (c *Collection[T]) DecodeGeoJSON(bytes []byte, props interface{}) error {
 	val := struct {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
-		Features   json.RawMessage `json:"features,omitempty"`
+		Features   json.RawMessage `json:"features"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{}
 
