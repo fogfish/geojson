@@ -66,7 +66,7 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		Type       string          `json:"type"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
 		ID         curie.IRI       `json:"id,omitempty"`
-		Geometry   Geometry        `json:"geometry,omitempty"`
+		Geometry   Geometry        `json:"geometry"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
 		ID:         fea.ID,
@@ -83,7 +83,7 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 type anyGeoJSON struct {
 	Type       string          `json:"type"`
 	ID         curie.IRI       `json:"id,omitempty"`
-	Geometry   json.RawMessage `json:"geometry,omitempty"`
+	Geometry   json.RawMessage `json:"geometry"`
 	Properties json.RawMessage `json:"properties,omitempty"`
 }
 
