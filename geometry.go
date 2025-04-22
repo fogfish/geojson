@@ -45,6 +45,8 @@ func decodeGeometry(b []byte) (Geometry, error) {
 	var geo Geometry
 
 	switch gen.Type {
+	case "":
+		return nil, nil
 	case typePoint:
 		geo = &Point{}
 	case typeMultiPoint:

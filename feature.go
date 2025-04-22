@@ -48,18 +48,15 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		return nil, err
 	}
 
-	geo := fea.Geometry
-	if geo == nil {
-		geo = &Point{Coords: Coord{}}
-	}
-
 	// Note: skip bounding box for the point.
 	var bbox BoundingBox
-	switch geo.(type) {
+	switch fea.Geometry.(type) {
+	case nil:
+		bbox = nil
 	case *Point:
 		bbox = nil
 	default:
-		bbox = geo.BoundingBox()
+		bbox = fea.Geometry.BoundingBox()
 	}
 
 	val := struct {
@@ -72,7 +69,7 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 		ID:         fea.ID,
 		Type:       TYPE_FEATURE,
 		BBox:       bbox,
-		Geometry:   geo,
+		Geometry:   fea.Geometry,
 		Properties: properties,
 	}
 

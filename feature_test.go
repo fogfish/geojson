@@ -49,10 +49,7 @@ const (
 	featurePointEmpty = `
 	{
 		"type": "Feature",
-		"geometry": {
-			"type": "Point",
-			"coordinates": []
-		},
+		"geometry": null,
 		"properties": {
 			"name": "Helsinki"
 		}
@@ -97,7 +94,7 @@ func TestFeatureDecodeEmpty(t *testing.T) {
 	it.Then(t).Should(
 		it.Nil(err),
 		it.Equal(city.Name, "Helsinki"),
-		it.Like(city.Geometry, &geojson.Point{geojson.Coord{}}),
+		it.Nil(city.Geometry),
 	)
 }
 
@@ -156,7 +153,7 @@ func TestFeatureEncodeUndefined(t *testing.T) {
 		it.Nil(err),
 		it.Equal(c.ID, ""),
 		it.Equal(c.Name, city.Name),
-		it.Like(c.Geometry, &geojson.Point{geojson.Coord{}}),
+		it.Nil(c.Geometry),
 	)
 }
 
