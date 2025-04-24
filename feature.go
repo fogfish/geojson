@@ -34,7 +34,13 @@ type Feature struct {
 	Geometry Geometry  `json:"-"`
 }
 
-func (fea Feature) BoundingBox() BoundingBox { return fea.Geometry.BoundingBox() }
+func (fea Feature) BoundingBox() BoundingBox {
+	if fea.Geometry == nil {
+		return nil
+	}
+
+	return fea.Geometry.BoundingBox()
+}
 
 // EncodeGeoJSON is a helper function to implement GeoJSON codec
 //
