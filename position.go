@@ -80,6 +80,10 @@ func (bbox BoundingBox) NorthEast() Coord {
 }
 
 func (bbox BoundingBox) Join(box BoundingBox) {
+	if box == nil {
+		return
+	}
+
 	n := len(bbox) / 2
 	sw := box.SouthWest()
 	ne := box.NorthEast()

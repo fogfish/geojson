@@ -68,3 +68,41 @@ func TestCollection(t *testing.T) {
 		it.Equal(c.Name, "Cities"),
 	)
 }
+
+func TestCollectionUnlocated(t *testing.T) {
+	spb := GeoJsonCity{
+		Feature: geojson.New("city:spb", nil),
+		City:    City{Name: "Saint-Petersburg"},
+	}
+
+	hel := GeoJsonCity{
+		Feature: geojson.New("city:hel", nil),
+		City:    City{Name: "Helsinki"},
+	}
+
+	sto := GeoJsonCity{
+		Feature: geojson.New("city:sto", nil),
+		City:    City{Name: "Stockholm"},
+	}
+
+	seq := GeoJsonCities{
+		Collection: geojson.Collection[GeoJsonCity]{
+			Features: []GeoJsonCity{spb, hel, sto},
+		},
+		Name: "Cities",
+	}
+
+	bin, err := json.Marshal(seq)
+	it.Then(t).Should(it.Nil(err))
+
+	var c GeoJsonCities
+	err = json.Unmarshal([]byte(bin), &c)
+
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equiv(c.Features[0], spb),
+		it.Equiv(c.Features[1], hel),
+		it.Equiv(c.Features[2], sto),
+		it.Equal(c.Name, "Cities"),
+	)
+}
