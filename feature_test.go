@@ -12,13 +12,12 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/fogfish/curie/v2"
 	"github.com/fogfish/geojson"
 	"github.com/fogfish/it/v2"
 )
 
 const (
-	city_helsinki = curie.IRI("city:helsinki")
+	city_helsinki = "city:helsinki"
 
 	featureInvalid = `
 		{
@@ -58,6 +57,7 @@ const (
 )
 
 type City struct {
+	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
@@ -68,12 +68,13 @@ type GeoJsonCity struct {
 
 func (x GeoJsonCity) MarshalJSON() ([]byte, error) {
 	type tStruct GeoJsonCity
-	return x.Feature.EncodeGeoJSON(tStruct(x))
+	return x.Feature.EncodeGeoJSON(x.ID, tStruct(x))
 }
 
-func (x *GeoJsonCity) UnmarshalJSON(b []byte) error {
+func (x *GeoJsonCity) UnmarshalJSON(b []byte) (err error) {
 	type tStruct *GeoJsonCity
-	return x.Feature.DecodeGeoJSON(b, tStruct(x))
+	x.ID, err = x.Feature.DecodeGeoJSON(b, tStruct(x))
+	return
 }
 
 func TestFeatureDecode(t *testing.T) {
@@ -100,8 +101,8 @@ func TestFeatureDecodeEmpty(t *testing.T) {
 
 func TestFeatureEncodePoint(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewPoint(city_helsinki, geojson.Coord{100.0, 0.0}),
-		City:    City{Name: "Helsinki"},
+		Feature: geojson.NewPoint(geojson.Coord{100.0, 0.0}),
+		City:    City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -120,8 +121,8 @@ func TestFeatureEncodePoint(t *testing.T) {
 
 func TestFeatureEncodePointEmpty(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewPoint(city_helsinki, geojson.Coord{}),
-		City:    City{Name: "Helsinki"},
+		Feature: geojson.NewPoint(geojson.Coord{}),
+		City:    City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -159,13 +160,13 @@ func TestFeatureEncodeUndefined(t *testing.T) {
 
 func TestFeatureEncodeMultiPoint(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiPoint(city_helsinki,
+		Feature: geojson.NewMultiPoint(
 			geojson.Curve{
 				{100.0, 0.0},
 				{101.0, 1.0},
 			},
 		),
-		City: City{Name: "Helsinki"},
+		City: City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -185,13 +186,13 @@ func TestFeatureEncodeMultiPoint(t *testing.T) {
 
 func TestFeatureEncodeLineString(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewLineString(city_helsinki,
+		Feature: geojson.NewLineString(
 			geojson.Curve{
 				{100.0, 0.0},
 				{101.0, 1.0},
 			},
 		),
-		City: City{Name: "Helsinki"},
+		City: City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -210,7 +211,7 @@ func TestFeatureEncodeLineString(t *testing.T) {
 
 func TestFeatureEncodeMultiLineString(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiLineString(city_helsinki,
+		Feature: geojson.NewMultiLineString(
 			geojson.Surface{
 				{
 					{100.0, 0.0},
@@ -222,7 +223,7 @@ func TestFeatureEncodeMultiLineString(t *testing.T) {
 				},
 			},
 		),
-		City: City{Name: "Helsinki"},
+		City: City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -241,7 +242,7 @@ func TestFeatureEncodeMultiLineString(t *testing.T) {
 
 func TestFeatureEncodePolygon(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewPolygon(city_helsinki,
+		Feature: geojson.NewPolygon(
 			geojson.Surface{
 				{
 					{100.0, 0.0},
@@ -252,7 +253,7 @@ func TestFeatureEncodePolygon(t *testing.T) {
 				},
 			},
 		),
-		City: City{Name: "Helsinki"},
+		City: City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)
@@ -271,7 +272,7 @@ func TestFeatureEncodePolygon(t *testing.T) {
 
 func TestFeatureEncodeMultiPolygon(t *testing.T) {
 	city := GeoJsonCity{
-		Feature: geojson.NewMultiPolygon(city_helsinki,
+		Feature: geojson.NewMultiPolygon(
 			geojson.Surface{
 				{
 					{102.0, 2.0},
@@ -282,7 +283,7 @@ func TestFeatureEncodeMultiPolygon(t *testing.T) {
 				},
 			},
 		),
-		City: City{Name: "Helsinki"},
+		City: City{ID: city_helsinki, Name: "Helsinki"},
 	}
 
 	data, err := json.Marshal(city)

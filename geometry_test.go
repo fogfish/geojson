@@ -220,17 +220,17 @@ func TestGeometryMultiPolygonEmpty(t *testing.T) {
 
 func TestEmptyGeometry(t *testing.T) {
 	it.Then(t).Should(
-		it.Equiv(geojson.NewPoint("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewPoint("", geojson.Coord{}).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiPoint("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiPoint("", geojson.Curve{}).BoundingBox(), nil),
-		it.Equiv(geojson.NewLineString("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewLineString("", geojson.Curve{}).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiLineString("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiLineString("", geojson.Surface{}).BoundingBox(), nil),
-		it.Equiv(geojson.NewPolygon("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewPolygon("", geojson.Surface{}).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiPolygon("", nil).BoundingBox(), nil),
-		it.Equiv(geojson.NewMultiPolygon("", geojson.Surface{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewPoint(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewPoint(geojson.Coord{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiPoint(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiPoint(geojson.Curve{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewLineString(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewLineString(geojson.Curve{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiLineString(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiLineString(geojson.Surface{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewPolygon(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewPolygon(geojson.Surface{}).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiPolygon(nil).BoundingBox(), nil),
+		it.Equiv(geojson.NewMultiPolygon(geojson.Surface{}).BoundingBox(), nil),
 	)
 }

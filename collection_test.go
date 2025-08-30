@@ -33,17 +33,17 @@ func (x *GeoJsonCities) UnmarshalJSON(b []byte) error {
 
 func TestCollection(t *testing.T) {
 	spb := GeoJsonCity{
-		Feature: geojson.NewPoint("city:spb", geojson.Coord{100.0, 0.0}),
+		Feature: geojson.NewPoint(geojson.Coord{100.0, 0.0}),
 		City:    City{Name: "Saint-Petersburg"},
 	}
 
 	hel := GeoJsonCity{
-		Feature: geojson.NewPoint("city:hel", geojson.Coord{101.0, 1.0}),
+		Feature: geojson.NewPoint(geojson.Coord{101.0, 1.0}),
 		City:    City{Name: "Helsinki"},
 	}
 
 	sto := GeoJsonCity{
-		Feature: geojson.NewPoint("city:sto", geojson.Coord{102.0, 2.0}),
+		Feature: geojson.NewPoint(geojson.Coord{102.0, 2.0}),
 		City:    City{Name: "Stockholm"},
 	}
 
@@ -71,17 +71,17 @@ func TestCollection(t *testing.T) {
 
 func TestCollectionUnlocated(t *testing.T) {
 	spb := GeoJsonCity{
-		Feature: geojson.New("city:spb", nil),
+		Feature: geojson.New(nil),
 		City:    City{Name: "Saint-Petersburg"},
 	}
 
 	hel := GeoJsonCity{
-		Feature: geojson.New("city:hel", nil),
+		Feature: geojson.New(nil),
 		City:    City{Name: "Helsinki"},
 	}
 
 	sto := GeoJsonCity{
-		Feature: geojson.New("city:sto", nil),
+		Feature: geojson.New(nil),
 		City:    City{Name: "Stockholm"},
 	}
 
