@@ -10,8 +10,6 @@ package geojson
 
 import (
 	"encoding/json"
-
-	"github.com/fogfish/curie/v2"
 )
 
 const TYPE_FEATURE = "Feature"
@@ -22,7 +20,7 @@ const TYPE_FEATURE = "Feature"
 // an application.
 //
 // The library uses a type safe notation for the feature's property
-// definition instead of generic interface{} type. It uses type tagging
+// definition instead of generic any type. It uses type tagging
 // technique (or embedding):
 //
 //	type MyType struct {
@@ -30,10 +28,13 @@ const TYPE_FEATURE = "Feature"
 //	  Name      string `json:"name,omitempty"`
 //	}
 type Feature struct {
-	ID       curie.IRI `json:"-"`
-	Geometry Geometry  `json:"-"`
+	Geometry Geometry `json:"-"`
 }
 
+func (fea Feature) unapply() Geometry { return fea.Geometry }
+func (fea *Feature) apply(g Geometry) { fea.Geometry = g }
+
+// Return the bounding box of the feature's geometry.
 func (fea Feature) BoundingBox() BoundingBox {
 	if fea.Geometry == nil {
 		return nil
@@ -42,142 +43,173 @@ func (fea Feature) BoundingBox() BoundingBox {
 	return fea.Geometry.BoundingBox()
 }
 
+// IFeature is a phantom type of the Feature itself, used for type-safe marshaling and unmarshaling.
+type IFeature interface {
+	BoundingBox() BoundingBox
+	unapply() Geometry
+	apply(Geometry)
+}
+
+//
+// Encoder
+//
+
 // EncodeGeoJSON is a helper function to implement GeoJSON codec
 //
 //	func (x MyType) MarshalJSON() ([]byte, error) {
-//		type tStruct MyType
-//		return x.Feature.EncodeGeoJSON(tStruct(x))
+//	  type tStruct MyType
+//	  return x.Feature.EncodeGeoJSON(tStruct(x))
 //	}
 func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
-	properties, err := json.Marshal(props)
+	return fencoder(&fea, props)
+}
+
+// Encodes object as GeoJSON
+func Marshal[T IFeature](obj T) ([]byte, error) {
+	return fencoder(obj, obj)
+}
+
+func fencoder(fea IFeature, obj any) ([]byte, error) {
+	geometry := fea.unapply()
+	properties, err := json.Marshal(obj)
 	if err != nil {
 		return nil, err
 	}
 
 	// Note: skip bounding box for the point.
 	var bbox BoundingBox
-	switch fea.Geometry.(type) {
+	switch geometry.(type) {
 	case nil:
 		bbox = nil
 	case *Point:
 		bbox = nil
 	default:
-		bbox = fea.Geometry.BoundingBox()
+		bbox = geometry.BoundingBox()
+	}
+
+	// ID is optional if the feature has a unique identifier.
+	var id string
+	if identity, has := any(obj).(interface{ GeoJsonID() string }); has {
+		id = identity.GeoJsonID()
 	}
 
 	val := struct {
 		Type       string          `json:"type"`
+		ID         string          `json:"id,omitempty"`
 		BBox       BoundingBox     `json:"bbox,omitempty"`
-		ID         curie.IRI       `json:"id,omitempty"`
 		Geometry   Geometry        `json:"geometry"`
 		Properties json.RawMessage `json:"properties,omitempty"`
 	}{
-		ID:         fea.ID,
 		Type:       TYPE_FEATURE,
+		ID:         id,
 		BBox:       bbox,
-		Geometry:   fea.Geometry,
+		Geometry:   geometry,
 		Properties: properties,
 	}
 
 	return json.Marshal(val)
 }
 
-// anyGeoJSON is an internal type used for decode of GeoJSON
-type anyGeoJSON struct {
-	Type       string          `json:"type"`
-	ID         curie.IRI       `json:"id,omitempty"`
-	Geometry   json.RawMessage `json:"geometry"`
-	Properties json.RawMessage `json:"properties,omitempty"`
-}
+//
+// Decoder
+//
 
 // DecodeGeoJSON is a helper function to implement GeoJSON codec
 //
 //	func (x *MyType) UnmarshalJSON(b []byte) error {
-//		type tStruct *MyType
-//		return x.Feature.DecodeGeoJSON(b, tStruct(x))
+//	  type tStruct *MyType
+//	  return x.Feature.DecodeGeoJSON(b, tStruct(x))
 //	}
-func (fea *Feature) DecodeGeoJSON(bytes []byte, props interface{}) error {
-	any := anyGeoJSON{}
+func (fea *Feature) DecodeGeoJSON(bytes []byte, props any) error {
+	return fdecode(bytes, fea, props)
+}
 
-	if err := json.Unmarshal(bytes, &any); err != nil {
+// Decodes GeoJSON object
+func Unmarshal[T IFeature](bytes []byte, obj T) error {
+	return fdecode(bytes, obj, obj)
+}
+
+func fdecode(bytes []byte, fe IFeature, obj any) error {
+	var fea struct {
+		Type       string          `json:"type"`
+		ID         string          `json:"id,omitempty"`
+		Geometry   json.RawMessage `json:"geometry"`
+		Properties json.RawMessage `json:"properties,omitempty"`
+	}
+
+	if err := json.Unmarshal(bytes, &fea); err != nil {
 		return err
 	}
 
-	if any.Type != TYPE_FEATURE {
+	if fea.Type != TYPE_FEATURE {
 		return ErrUnsupportedType
 	}
 
-	return fea.decodeAnyGeoJSON(&any, props)
-}
+	if fea.Properties != nil {
+		if err := json.Unmarshal(fea.Properties, &obj); err != nil {
+			return err
+		}
 
-func (fea *Feature) decodeAnyGeoJSON(any *anyGeoJSON, props interface{}) error {
-	if any.Geometry != nil {
-		geo, err := decodeGeometry(any.Geometry)
+		// ID is optional if the feature has a unique identifier.
+		if identity, has := any(obj).(interface{ SetGeoJsonID(string) }); has {
+			identity.SetGeoJsonID(fea.ID)
+		}
+	}
+
+	if fea.Geometry != nil {
+		geo, err := decodeGeometry(fea.Geometry)
 		if err != nil {
 			return err
 		}
-		fea.Geometry = geo
+		fe.apply(geo)
 	}
 
-	if any.Properties != nil {
-		if err := json.Unmarshal(any.Properties, &props); err != nil {
-			return err
-		}
-	}
-
-	fea.ID = any.ID
 	return nil
 }
 
 // New Feature from Geometry
-func New(id curie.IRI, geometry Geometry) Feature {
-	return Feature{ID: id, Geometry: geometry}
+func New(geometry Geometry) Feature {
+	return Feature{Geometry: geometry}
 }
 
 // NewPoint ⟼ Feature[Point]
-func NewPoint(id curie.IRI, coords Coord) Feature {
+func NewPoint(coords Coord) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &Point{Coords: coords},
 	}
 }
 
 // NewMultiPoint ⟼ Feature[MultiPoint]
-func NewMultiPoint(id curie.IRI, coords Curve) Feature {
+func NewMultiPoint(coords Curve) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &MultiPoint{Coords: coords},
 	}
 }
 
 // NewLineString ⟼ Feature[LineString]
-func NewLineString(id curie.IRI, coords Curve) Feature {
+func NewLineString(coords Curve) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &LineString{Coords: coords},
 	}
 }
 
 // NewMultiLineString ⟼ Feature[MultiLineString]
-func NewMultiLineString(id curie.IRI, coords Surface) Feature {
+func NewMultiLineString(coords Surface) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &MultiLineString{Coords: coords},
 	}
 }
 
 // NewPolygon ⟼ Feature[Polygon]
-func NewPolygon(id curie.IRI, coords Surface) Feature {
+func NewPolygon(coords Surface) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &Polygon{Coords: coords},
 	}
 }
 
 // NewMultiPolygon ⟼ Feature[MultiPolygon]
-func NewMultiPolygon(id curie.IRI, coords ...Surface) Feature {
+func NewMultiPolygon(coords ...Surface) Feature {
 	return Feature{
-		ID:       id,
 		Geometry: &MultiPolygon{Coords: coords},
 	}
 }

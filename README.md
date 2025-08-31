@@ -42,7 +42,7 @@ GeoJSON is a popular format for encoding a variety of geographic data structures
 ```json
 {
   "type": "Feature",
-  "id": "[wikipedia:Helsinki]",
+  "id": "wikipedia:Helsinki",
   "geometry": {
     "type": "Point",
     "coordinates": [24.9384, 60.1699]
@@ -68,6 +68,7 @@ The library allows developers to use pure Golang struct to define domain models 
 ```go
 type City struct {
   geojson.Feature
+  ID        string `json:"id,omitempty"`
   Name      string `json:"name,omitempty"`
 }
 ```
@@ -86,6 +87,7 @@ import "github.com/fogfish/geojson"
 // declare any domain type and annotate as a geojson.Feature
 type City struct {
   geojson.Feature
+  ID        string `json:"id,omitempty"`
   Name      string `json:"name,omitempty"`
 }
 
@@ -98,16 +100,16 @@ func (x City) MarshalJSON() ([]byte, error) {
 
 func (x *City) UnmarshalJSON(b []byte) error {
 	type tStruct *City
-	return x.Feature.DecodeGeoJSON(b, tStruct(x))
+  return x.Feature.DecodeGeoJSON(b, tStruct(x))
 }
 
 //
 // Create new instance of the type
 city := City{
   Feature: geojson.NewPoint(
-    "[wikipedia:Helsinki]",
     geojson.Coord{24.9384, 60.1699},
   ),
+  ID:   "wikipedia:Helsinki",
   Name: "Helsinki",
 }
 
