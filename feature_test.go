@@ -310,3 +310,75 @@ func TestFeatureInvalidDecode(t *testing.T) {
 		it.Nil(city.Geometry),
 	)
 }
+
+// Define a type that implements both GeoJsonID() and SetGeoJsonID()
+type CityWithIDInterface struct {
+	geojson.Feature
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+// Implement GeoJsonID() interface
+func (c CityWithIDInterface) GeoJsonID() string {
+	return c.ID
+}
+
+// Implement SetGeoJsonID() interface
+func (c *CityWithIDInterface) SetGeoJsonID(id string) {
+	c.ID = id
+}
+
+func TestEncodeFeatureID(t *testing.T) {
+	// Test encoding: ID should be extracted via GeoJsonID()
+	city := CityWithIDInterface{
+		Feature: geojson.NewPoint(geojson.Coord{100.0, 50.0}),
+		ID:      "test:city:123",
+		Name:    "Test City",
+	}
+
+	data, err := geojson.Marshal(&city)
+	it.Then(t).Must(it.Nil(err))
+
+	var out any
+	err = json.Unmarshal(data, &out)
+	it.Then(t).Must(it.Nil(err))
+
+	it.Then(t).Should(
+		it.Json(out).Equiv(`{
+			"type": "Feature",
+			"id": "test:city:123",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [100.0, 50.0]
+			},
+			"properties": {
+				"name": "Test City"
+			}
+		}`),
+	)
+}
+
+func TestDecodeFeatureID(t *testing.T) {
+	// Test decoding: ID should be set via SetGeoJsonID()
+	jsonWithID := `{
+	      "type": "Feature",
+	      "id": "decoded:city:456",
+	      "geometry": {
+	          "type": "Point",
+	          "coordinates": [102.0, 0.5]
+	      },
+	      "properties": {
+	          "name": "Decoded City"
+	      }
+	  }`
+
+	var decodedCity CityWithIDInterface
+	err := geojson.Unmarshal([]byte(jsonWithID), &decodedCity)
+
+	it.Then(t).Should(
+		it.Nil(err),
+		it.Equal(decodedCity.ID, "decoded:city:456"),
+		it.Equal(decodedCity.Name, "Decoded City"),
+		it.Like(decodedCity.Geometry, &geojson.Point{geojson.Coord{102.0, 0.5}}),
+	)
+}

@@ -65,7 +65,7 @@ func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 }
 
 // Encodes object as GeoJSON
-func MarshalJSON[T IFeature](obj T) ([]byte, error) {
+func Marshal[T IFeature](obj T) ([]byte, error) {
 	return fencoder(obj, obj)
 }
 
@@ -126,7 +126,7 @@ func (fea *Feature) DecodeGeoJSON(bytes []byte, props any) error {
 }
 
 // Decodes GeoJSON object
-func UnmarshalJSON[T IFeature](bytes []byte, obj T) error {
+func Unmarshal[T IFeature](bytes []byte, obj T) error {
 	return fdecode(bytes, obj, obj)
 }
 
@@ -149,6 +149,11 @@ func fdecode(bytes []byte, fe IFeature, obj any) error {
 	if fea.Properties != nil {
 		if err := json.Unmarshal(fea.Properties, &obj); err != nil {
 			return err
+		}
+
+		// ID is optional if the feature has a unique identifier.
+		if identity, has := any(obj).(interface{ SetGeoJsonID(string) }); has {
+			identity.SetGeoJsonID(fea.ID)
 		}
 	}
 
