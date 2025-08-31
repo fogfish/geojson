@@ -58,7 +58,7 @@ type IFeature interface {
 //
 //	func (x MyType) MarshalJSON() ([]byte, error) {
 //	  type tStruct MyType
-//	  return x.Feature.EncodeGeoJSON(x.ID, tStruct(x))
+//	  return x.Feature.EncodeGeoJSON(tStruct(x))
 //	}
 func (fea Feature) EncodeGeoJSON(props any) ([]byte, error) {
 	return fencoder(&fea, props)
@@ -116,10 +116,9 @@ func fencoder(fea IFeature, obj any) ([]byte, error) {
 
 // DecodeGeoJSON is a helper function to implement GeoJSON codec
 //
-//	func (x *MyType) UnmarshalJSON(b []byte) (err error) {
+//	func (x *MyType) UnmarshalJSON(b []byte) error {
 //	  type tStruct *MyType
-//	  x.ID, err = x.Feature.DecodeGeoJSON(b, tStruct(x))
-//	  return
+//	  return x.Feature.DecodeGeoJSON(b, tStruct(x))
 //	}
 func (fea *Feature) DecodeGeoJSON(bytes []byte, props any) error {
 	return fdecode(bytes, fea, props)
