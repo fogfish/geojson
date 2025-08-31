@@ -68,16 +68,15 @@ type GeoJsonCity struct {
 
 func (x GeoJsonCity) MarshalJSON() ([]byte, error) {
 	type tStruct GeoJsonCity
-	return x.Feature.EncodeGeoJSON(x.ID, tStruct(x))
+	return x.Feature.EncodeGeoJSON(tStruct(x))
 }
 
-func (x *GeoJsonCity) UnmarshalJSON(b []byte) (err error) {
+func (x *GeoJsonCity) UnmarshalJSON(b []byte) error {
 	type tStruct *GeoJsonCity
-	x.ID, err = x.Feature.DecodeGeoJSON(b, tStruct(x))
-	return
+	return x.Feature.DecodeGeoJSON(b, tStruct(x))
 }
 
-func TestFeatureDecode(t *testing.T) {
+func TestFeatureDecodeX(t *testing.T) {
 	var city GeoJsonCity
 	err := json.Unmarshal([]byte(featurePoint), &city)
 

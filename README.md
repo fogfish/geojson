@@ -95,13 +95,12 @@ type City struct {
 // Each GeoJSON type declares JSON codes using helper functions.
 func (x City) MarshalJSON() ([]byte, error) {
 	type tStruct City
-	return x.Feature.EncodeGeoJSON(x.ID, tStruct(x))
+	return x.Feature.EncodeGeoJSON(tStruct(x))
 }
 
-func (x *City) UnmarshalJSON(b []byte) (err error) {
+func (x *City) UnmarshalJSON(b []byte) error {
 	type tStruct *City
-  x.ID, err = x.Feature.DecodeGeoJSON(b, tStruct(x))
-	return 
+  return x.Feature.DecodeGeoJSON(b, tStruct(x))
 }
 
 //

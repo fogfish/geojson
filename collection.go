@@ -49,6 +49,10 @@ func (c Collection[T]) BoundingBox() BoundingBox {
 	return bbox
 }
 
+//
+// Encoder
+//
+
 // EncodeGeoJSON is a helper function to implement GeoJSON codec
 //
 //	func (x MyCollection) MarshalJSON() ([]byte, error) {
